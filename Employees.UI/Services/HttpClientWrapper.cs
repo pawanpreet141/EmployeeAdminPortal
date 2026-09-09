@@ -51,20 +51,5 @@
         {
             throw new NotImplementedException();
         }
-
-        //internal async Task PostAsync<T1, T2>(string v, T2 employee)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //internal async Task PutAsync<T1, T2>(string v, T2 employee)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //internal async Task DeleteAsync(string v)
-        //{
-        //    throw new NotImplementedException();
-        //}
     }
 }
