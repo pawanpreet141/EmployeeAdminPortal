@@ -1,21 +1,13 @@
-using Employee.UI.Components;
-using Employee.UI.Services;
+using Employees.UI.Components;
+using Employees.UI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-//httpclientwrapper
-builder.Services.AddScoped<HttpClient>(sp =>
-{
-    return new HttpClient
-    {
-        BaseAddress = new Uri("https://localhost:7001/")
-    };
-});
-
-builder.Services.AddScoped<HttpClientWrapper>();
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+builder.Services.AddScoped<HttpClientWrapper>();
 
 var app = builder.Build();
 
