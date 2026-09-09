@@ -1,4 +1,4 @@
-﻿ @using Employees.UI.Models
+﻿@using Employees.UI.Models
 @using Employees.UI.Services
 @page "/employees"
 @rendermode InteractiveServer
@@ -31,7 +31,8 @@
 
                 <input class="form-control"
                        @bind="employee.Name" />
-            </div>
+            </div> 
+
 
             <div class="mb-3">
                 <label>Salary</label>
@@ -103,13 +104,12 @@ else
 					<td>@item.Id</td>
 
 					<td>@item.Name</td>
-
+					 
 					<td>@item.Salary</td>
 
 					<td>@item.Department</td>
 
 					<td>@item.Age</td>
-
 					<td>
 
 						<button class="btn btn-sm btn-warning me-2"
