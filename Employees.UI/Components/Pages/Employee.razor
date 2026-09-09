@@ -1,7 +1,5 @@
-﻿<Component />@using Employees.UI.Services
-
-<Component />
-
+﻿ @using Employees.UI.Services
+@page "/employees"
 @inject HttpClientWrapper HttpClient
 
 <h3>Employee Management</h3>
@@ -72,104 +70,104 @@
 
 @if (employees == null)
 {
-    <p>
-        <em>Loading...</em>
-    </p>
+	<p>
+		<em>Loading...</em>
+	</p>
 }
 else if (!employees.Any())
 {
-    <p>No employees found.</p>
+	<p>No employees found.</p>
 }
 else
 {
-    <table class="table table-bordered table-striped">
+	<table class="table table-bordered table-striped">
 
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Name</th>
-                <th>Salary</th>
-                <th>Department</th>
-                <th>Age</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
+		<thead>
+			<tr>
+				<th>Id</th>
+				<th>Name</th>
+				<th>Salary</th>
+				<th>Department</th>
+				<th>Age</th>
+				<th>Actions</th>
+			</tr>
+		</thead>
 
-        <tbody>
+		<tbody>
 
-            @foreach (var item in employees)
-            {
-                <tr>
-                    <td>@item.Id</td>
+			@foreach (var item in employees)
+			{
+				<tr>
+					<td>@item.Id</td>
 
-                    <td>@item.Name</td>
+					<td>@item.Name</td>
 
-                    <td>@item.Salary</td>
+					<td>@item.Salary</td>
 
-                    <td>@item.Department</td>
+					<td>@item.Department</td>
 
-                    <td>@item.Age</td>
+					<td>@item.Age</td>
 
-                    <td>
+					<td>
 
-                        <button class="btn btn-sm btn-warning me-2"
-                                @onclick="() => EditEmployee(item)">
-                            Edit
-                        </button>
+						<button class="btn btn-sm btn-warning me-2"
+						@onclick="() => EditEmployee(item)">
+							Edit
+						</button>
 
-                        <button class="btn btn-sm btn-danger"
-                                @onclick="() => DeleteEmployee(item.Id)">
-                            Delete
-                        </button>
+						<button class="btn btn-sm btn-danger"
+						@onclick="() => DeleteEmployee(item.Id)">
+							Delete
+						</button>
 
-                    </td>
-                </tr>
-            }
+					</td>
+				</tr>
+			}
 
-        </tbody>
+		</tbody>
 
-    </table>
+	</table>
 }
 
 @code {
 
-    private List<EmployeeDto>? employees;
+	private List<EmployeeDto>? employees;
 
-    private EmployeeDto employee = new();
+	private EmployeeDto employee = new();
 
-    private bool showForm = false;
+	private bool showForm = false;
 
-    private int editingId = 0;
-
-
-    protected override async Task OnInitializedAsync()
-    {
-        await LoadEmployees();
-    }
+	private int editingId = 0;
 
 
-    private async Task LoadEmployees()
-    {
-        employees =
-            await HttpClient.GetAsync<List<EmployeeDto>>(
-                "api/Employee")
-            ?? new List<EmployeeDto>();
-    }
+	protected override async Task OnInitializedAsync()
+	{
+		await LoadEmployees();
+	}
 
 
-    private void ShowAddForm()
-    {
-        employee = new EmployeeDto();
+	private async Task LoadEmployees()
+	{
+		employees =
+			await HttpClient.GetAsync<List<EmployeeDto>>(
+				"api/Employee")
+			?? new List<EmployeeDto>();
+	}
 
-        editingId = 0;
 
-        showForm = true;
-    }
+	private void ShowAddForm()
+	{
+		employee = new EmployeeDto();
+
+		editingId = 0;
+
+		showForm = true;
+	}
 
 
-    private void EditEmployee(EmployeeDto selectedEmployee)
-    {
-        employee = new EmployeeDto
+	private void EditEmployee(EmployeeDto selectedEmployee)
+	{
+		employee = new EmployeeDto
         {
             Id = selectedEmployee.Id,
             Name = selectedEmployee.Name,
@@ -178,8 +176,8 @@ else
             Age = selectedEmployee.Age
         };
 
-        string id = selectedEmployee.Id;
-        string id1 = id;
+		int id = selectedEmployee.Id;
+		int id1 = id;
 
 		showForm = true;
 	}
@@ -231,10 +229,10 @@ else
 	private class EmployeeDto
 	{
 		internal string Name;
-		internal string Salary;
+		internal Decimal Salary;
 		internal string Department;
-		internal string Age;
-		internal string Id;
+		internal int Age;
+		internal int Id;
 
 		public EmployeeDto()
 		{
@@ -246,3 +244,147 @@ else
 		throw new NotImplementedException();
 	}
 }
+
+
+@*
+@page "/employees"
+@using Employees.UI.Services
+@inject HttpClientWrapper HttpClient
+@attribute [RenderModeServer]
+
+<h3>Employee Management</h3>
+
+<!--Add / edit form-->
+<div class="card mb-4 p-3">
+<h4> @(currentEmployee.Id ==0 ? "Add Employee" : "Edit Employee")  </h4>
+<div class="row g-3">
+<div class="col-md-3">
+<input type="text" class="form-control" placeholder="Name" @bind="currentEmployee.Name" />
+</div>
+
+        <div class="col-md-3">
+            <input type="email" class="form-control" placeholder="Email" @bind="currentEmployee.Email" />
+        </div>
+
+		<div class="col-md-3">
+			<input type="text" class="form-control" placeholder="Department" @bind="currentEmployee.Department" />
+		</div>
+		<div class="col-md-3">
+			<input type="number" class="form-control" placeholder="Salary" @bind="currentEmployee.Salary" />
+		</div>
+		<div class="col-md-3">
+			<input type="number" class="form-control" placeholder="Age" @bind="currentEmployee.Age"/>
+		</div>
+		<div class="col-md-3">
+			<button class="btn btn-primary" @onclick="SaveEmployee">Save</button>
+			<button class="btn btn-secondary ms-2" @onclick="CancelEdit">Cancel</button>
+		</div>
+</div>
+
+
+</div>
+
+
+
+<!-- Employee  table -->
+@if (employees == null)
+{
+	<p><em>Loading...</em></p>
+}
+else if (!employees.Any())
+{
+	<p>No employees found.</p>
+}
+else
+{
+	<table class="table table-bordered table-striped">
+		<thead>
+			<tr>
+				<th>Name</th>
+				<th>Email</th>
+				<th>Department</th>
+				<th>Salary</th>
+				<th>Age</th>
+				<th>Actions</th>
+			</tr>
+		</thead>
+		<tbody>
+			@foreach (var emp in employees)
+			{
+				<tr>
+					<td>@emp.Name</td>
+					<td>@emp.Email</td>
+					<td>@emp.Department</td>
+					<td>@emp.Salary</td>
+					<td>@emp.Age</td>
+					<td>
+						<button class="btn btn-warning btn-sm" @onclick="() => EditEmployee(emp)">Edit</button>
+						<button class="btn btn-danger btn-sm ms-2" @onclick="() => DeleteEmployee(emp.Id)">Delete</button>
+					</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+}
+
+@code{
+	private List<Employee>? employees;
+	private Employee currentEmployee = new ();
+	private object Age;
+	private object Salary;
+	private object Department;
+	private object Email;
+	private object Name;
+	private object Id;
+	private EventCallback CancelEdit;
+
+	protected override async Task OnInitializedAsync()
+	{
+		await LoadEmployees();
+	}
+	private async Task LoadEmployees()
+	{
+		employees = await HttpClient.GetAsync<List<Employee>>("api/Employees");
+	}
+	private async Task SaveEmployee()
+	{
+		if (currentEmployee.Id == 0)
+		{
+			await HttpClient.PostAsync("api/Employees", currentEmployee);
+		}
+		else
+		{
+			await HttpClient.PutAsync($"api/Employees/{currentEmployee.Id}",currentEmployee);
+		}
+
+		currentEmployee = new Employee();
+		await LoadEmployees();
+	}
+	private void EditEmployee(Employee emp)
+	{
+		currentEmployee = new Employee
+		{
+			Id = emp.Id,
+			Name = emp.Name,
+			Email = emp.Email,
+			Department = emp.Department,
+			Salary = emp.Salary,
+			Age = emp.Age
+		};
+	}
+
+	private async Task DeleteEmployee(int id)
+	{
+		await HttpClient.DeleteAsync($"api/Employees/{id}");
+		await LoadEmployees();
+	}
+
+	private class RenderModeServerAttribute : Attribute
+	{
+	}
+
+	private object DeleteEmployee(object id)
+	{
+		throw new NotImplementedException();
+	}
+}*@
