@@ -69,6 +69,7 @@
 
         </div>
     </div>
+
 }
 
 @if (employees == null)
@@ -153,7 +154,7 @@ else
 	{
 		employees =
 			await HttpClient.GetAsync<List<Employee1>>(
-				"api/Employee")
+				"api/Employees")
 			?? new List<Employee1>();
 	}
 
@@ -189,16 +190,21 @@ else
 	private async Task SaveEmployee()
 	{
 		if (editingId == 0)
-		{
-			await HttpClient.PostAsync<Employee1, Employee1>(
-				"api/Employee",
-				employee);
+		 {
+			await HttpClient.PostAsync(
+		"api/Employees",
+		employee);
+
 		}
 		else
 		{
-			await HttpClient.PutAsync<Employee1, Employee1>(
-				$"api/Employee/{editingId}",
-				employee);
+			await HttpClient.PutAsync(
+	$"api/Employees/{editingId}",
+	employee);
+
+
+
+
 		}
 
 		showForm = false;
@@ -211,12 +217,23 @@ else
 	}
 
 
+	// private async Task DeleteEmployee(int id)
+	// {
+	// 	await HttpClient.DeleteAsync(
+	// 		$"api/Employees/{id}");
+
+	// 	await LoadEmployees();
+	// }
+
 	private async Task DeleteEmployee(int id)
 	{
-		await HttpClient.DeleteAsync(
-			$"api/Employee/{id}");
+		var response = await HttpClient.DeleteAsync(
+			$"api/Employees/{id}");
 
-		await LoadEmployees();
+		if (response.IsSuccessStatusCode)
+		{
+			await LoadEmployees();
+		}
 	}
 
 

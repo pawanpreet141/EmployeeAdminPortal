@@ -8,8 +8,8 @@ namespace EmpolyeeAdminPortal.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    //public class EmployeesController : ControllerBase
-    public class EmployeesController : Controller
+    public class EmployeesController : ControllerBase
+    //public class EmployeesController : Controller
     {
         private readonly EmployeeDbContext _context;
 

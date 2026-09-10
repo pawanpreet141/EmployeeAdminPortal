@@ -12,10 +12,11 @@
 
 
         //Get
-        public async Task<T?> GetAsync<T>(string url)
-        {
-            return await _httpClient.GetFromJsonAsync<T>(url);
-        }
+            public async Task<T?> GetAsync<T>(string url)
+            {
+                return await _httpClient.GetFromJsonAsync<T>(url);
+            }
+
 
         //Post
         public async Task<HttpResponseMessage>PostAsync<T>(string url, T data)
@@ -32,24 +33,10 @@
         }
 
         //Delete
-        public async Task<HttpResponseMessage> DeleteAsync<T>(string url, T data)
+        public async Task<HttpResponseMessage> DeleteAsync(string url)
         {
             return await _httpClient.DeleteAsync(url);
         }
 
-        internal async Task DeleteAsync(string v)
-        {
-            throw new NotImplementedException();
-        }
-
-        internal async Task PostAsync<T1, T2>(string v, T2 employee)
-        {
-            throw new NotImplementedException();
-        }
-
-        internal async Task PutAsync<T1, T2>(string v, T2 employee)
-        {
-            throw new NotImplementedException();
-        }
     }
 }
