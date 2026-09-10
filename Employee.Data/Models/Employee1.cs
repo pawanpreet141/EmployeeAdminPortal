@@ -1,18 +1,24 @@
-﻿namespace Employee.Data.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Employee.Data.Models
 {
     public class Employee1
     {
         public int Id { get; set; }
 
+
+        [Required(ErrorMessage = "Name is required.")]
         public string Name { get; set; } = string.Empty;
 
+        [Required(ErrorMessage = "Email is required.")]
+        [EmailAddress(ErrorMessage = "Please enter a valid email address.")]
         public string Email { get; set; } = string.Empty;
 
         public int Age { get; set; }
 
+        [Required(ErrorMessage = "Department is required.")]
         public string Department { get; set; } = string.Empty;
 
         public decimal Salary { get; set; }
     }
 }
-
