@@ -14,61 +14,79 @@
     </button>
 </div>
 
+
 @if (showForm)
 {
-    <div class="card mb-4">
-        <div class="card-header">
-            <strong>
-                @(editingId == 0 ? "Add Employee" : "Edit Employee")
-            </strong>
-        </div>
+	<div class="card mb-4">
+		<div class="card-header">
+			<strong>
+				@(editingId == 0 ? "Add Employee" : "Edit Employee")
+			</strong>
 
+		</div>
 
-        <div class="card-body">
+		<div class="card-body">
 
-            <div class="mb-3">
-                <label>Name</label>
+			<EditForm Model="employee" OnValidSubmit="SaveEmployee">
 
-                <input class="form-control"
-                       @bind="employee.Name" />
-            </div> 
+				<DataAnnotationsValidator />
 
+				<div class="mb-3">
+					<label>Name</label>
 
-            <div class="mb-3">
-                <label>Salary</label>
+					<InputText class="form-control"
+							   @bind-Value="employee.Name" />
+					<ValidationMessage For="@(() => employee.Name)" />
+				</div>
 
-                <input type="number"
-                       class="form-control"
-                       @bind="employee.Salary" />
-            </div>
+				       <div class="mb-3">
+                    <label>Email</label>
 
-            <div class="mb-3">
-                <label>Department</label>
+                    <InputText type="email"
+                               class="form-control"
+                               @bind-Value="employee.Email" />
+					<ValidationMessage For="@(() => employee.Email)" />
+							   </div>
 
-                <input class="form-control"
-                       @bind="employee.Department" />
-            </div>
+				<div class="mb-3">
+					<label>Salary</label>
 
-            <div class="mb-3">
-                <label>Age</label>
+					<InputNumber class="form-control"
+								 @bind-Value="employee.Salary" />
+				</div>
 
-                <input type="number"
-                       class="form-control"
-                       @bind="employee.Age" />
-            </div>
+				<div class="mb-3">
+					<label>Department</label>
 
-            <button class="btn btn-success me-2"
-                    @onclick="SaveEmployee">
-                Save
-            </button>
+					<InputText class="form-control"
+							   @bind-Value="employee.Department" />
+				</div>
 
-            <button class="btn btn-secondary"
-                    @onclick="Cancel">
-                Cancel
-            </button>
+				<div class="mb-3">
+					<label>Age</label>
 
-        </div>
-    </div>
+					<InputNumber class="form-control"
+								 @bind-Value="employee.Age" />
+
+					<ValidationMessage For="@(() => employee.Age)" />
+				</div>
+
+				<button type="submit"
+						class="btn btn-success me-2">
+					Save
+				</button>
+
+				<button type="button"
+						class="btn btn-secondary"
+						@onclick="Cancel">
+					Cancel
+				</button>
+
+			</EditForm>
+
+		</div>
+	</div>
+}
 
 }
 
@@ -90,6 +108,7 @@ else
 			<tr>
 				<th>Id</th>
 				<th>Name</th>
+			    <th>Email</th>
 				<th>Salary</th>
 				<th>Department</th>
 				<th>Age</th>
@@ -105,7 +124,9 @@ else
 					<td>@item.Id</td>
 
 					<td>@item.Name</td>
-					 
+
+					<td>@item.Email</td>
+
 					<td>@item.Salary</td>
 
 					<td>@item.Department</td>
@@ -215,15 +236,6 @@ else
 
 		await LoadEmployees();
 	}
-
-
-	// private async Task DeleteEmployee(int id)
-	// {
-	// 	await HttpClient.DeleteAsync(
-	// 		$"api/Employees/{id}");
-
-	// 	await LoadEmployees();
-	// }
 
 
 	private async Task DeleteEmployee(int id)

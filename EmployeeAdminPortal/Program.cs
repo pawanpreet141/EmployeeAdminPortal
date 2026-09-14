@@ -24,17 +24,7 @@ var builder = WebApplication.CreateBuilder(args);
 //});
 
 
-
-// MVC
-//builder.Services.AddControllersWithViews();
-// Blazor
-//builder.Services.AddRazorComponents()
-//    .AddInteractiveServerComponents();
-
-
 builder.Services.AddControllersWithViews();
-
-//builder.Services.AddControllers();
 
 builder.Services.AddDbContext<EmployeeDbContext>(options =>
     options.UseMySql(
@@ -43,7 +33,6 @@ builder.Services.AddDbContext<EmployeeDbContext>(options =>
             builder.Configuration.GetConnectionString("DefaultConnection")
         )
     ));
-//builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -67,8 +56,6 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-//app.MapRazorComponents<App>()
-//    .AddInteractiveServerRenderMode();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Employee}/{action=Index}/{id?}");

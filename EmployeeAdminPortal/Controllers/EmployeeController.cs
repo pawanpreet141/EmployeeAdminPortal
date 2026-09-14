@@ -76,38 +76,6 @@ namespace EmpolyeeAdminPortal.Controllers
 
 
 
-        //error occur
-        //[HttpGet]
-        //public async Task<IActionResult> GetEmployees()
-        //{
-        //    try
-        //    {
-        //        _logger.LogInformation("Getting all employees");
-
-        //        var employees = await _context.Employees.ToListAsync();
-
-        //        _logger.LogInformation(
-        //            "Retrieved {EmployeeCount} employees",
-        //            employees.Count);
-
-        //        return Ok(employees);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.LogError(
-        //            ex,
-        //            "Error occurred while getting employees");
-
-        //        return StatusCode(
-        //            500,
-        //            "An error occurred while getting employees.");
-        //    }
-        //}
-
-
-
-
-
         [HttpGet("{id}")]
         public async Task<ActionResult<Employee1>> GetEmployee(int id)
         {
