@@ -1,0 +1,45 @@
+﻿@* @using Microsoft.AspNetCore.Http
+@model Employee.UI.Pages.IndexModel
+
+@page
+@model Employees.UI.Components.Pages.IndexModel
+
+@{
+    ViewData["Title"] = "Home";
+}
+
+<div class="container mt-5">
+
+    <h1>Employee Management System</h1>
+
+    @if (HttpContext.Session.GetString("UserName") != null)
+    {
+        <h3>
+            Welcome,
+            @HttpContext.Session.GetString("UserName")
+        </h3>
+
+        <p>
+            Email:
+            @HttpContext.Session.GetString("UserEmail")
+        </p>
+
+        <a asp-page="/Account/Logout"
+        class="btn btn-danger">
+            Logout
+        </a>
+    }
+    else
+    {
+        <a asp-page="/Account/Login"
+        class="btn btn-primary">
+            Login
+        </a>
+
+        <a asp-page="/Account/Signup"
+        class="btn btn-success">
+            Signup
+        </a>
+    }
+</div>
+ *@

@@ -1,0 +1,116 @@
+﻿@page "/login"
+@* @page "/" *@
+@rendermode InteractiveServer
+@using Employees.UI.Services
+@inject HttpClientWrapper Api
+@inject NavigationManager Navigation
+
+<PageTitle>Login</PageTitle>
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+
+            <div class="card shadow">
+
+                <div class="card-header text-center">
+                    <h3>Employee Login</h3>
+                </div>
+
+                <div class="card-body">
+
+                    <div class="mb-3">
+                        <label class="form-label">
+                            Email
+                        </label>
+
+                        <input class="form-control"
+                               type="email"
+                               @bind="Email"
+                               placeholder="Enter email" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">
+                            Password
+                        </label>
+
+                        <input class="form-control"
+                               type="password"
+                               @bind="Password"
+                               placeholder="Enter password" />
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(ErrorMessage))
+                    {
+                        <div class="alert alert-danger">
+                            @ErrorMessage
+                        </div>
+                    }
+
+                    <button class="btn btn-primary w-100"
+                            @onclick="LoginUser">
+
+                        Login
+
+                    </button>
+
+                    <div class="text-center mt-3">
+
+                        <a href="/signup">
+                            Don't have an account?
+                            Sign Up
+                        </a>
+
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@code {
+
+    private string Email = string.Empty;
+
+    private string Password = string.Empty;
+
+    private string ErrorMessage = string.Empty;
+
+    private async Task LoginUser()
+    {
+        ErrorMessage = string.Empty;
+
+        if (string.IsNullOrWhiteSpace(Email) ||
+            string.IsNullOrWhiteSpace(Password))
+        {
+            ErrorMessage =
+                "Please enter email and password.";
+
+            return;
+        }
+
+        var result = await Api.Login(
+            new LoginRequest
+            {
+                Email = Email,
+                Password = Password
+            });
+
+        if (result == null || !result.Success)
+        {
+            ErrorMessage =
+                result?.Message ??
+                "Login failed.";
+
+            return;
+        }
+
+         Navigation.NavigateTo("/");
+        // Login successful
+      //  Navigation.NavigateTo("/employees");
+    }
+}
+

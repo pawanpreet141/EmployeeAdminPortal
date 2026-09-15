@@ -18,24 +18,6 @@ namespace EmpolyeeAdminPortal.Controllers
         }
 
 
-        //...serilog
-        //public class EmployeesController : ControllerBase
-        //{
-        //    private readonly EmployeeDbContext _context;
-        //    private readonly ILogger<EmployeesController> _logger;
-
-        //    public EmployeesController(
-        //        EmployeeDbContext context,
-        //        ILogger<EmployeesController> logger)
-        //    {
-        //        _context = context;
-        //        _logger = logger;
-        //    }
-        //}
-
-
-
-
         [HttpPost]
         public async Task<ActionResult<Employee1>> CreateEmployee(Employee1 employee)
         {
@@ -58,24 +40,6 @@ namespace EmpolyeeAdminPortal.Controllers
             return await _context.Employees.ToListAsync();
         }
 
-
-        //.....serilog
-        //[HttpGet]
-        //public async Task<IActionResult> GetEmployees()
-        //{
-        //    _logger.LogInformation("Getting all employees");
-
-        //    var employees = await _context.Employees.ToListAsync();
-
-        //    _logger.LogInformation(
-        //        "Retrieved {EmployeeCount} employees",
-        //        employees.Count);
-
-        //    return Ok(employees);
-        //}
-
-
-
         [HttpGet("{id}")]
         public async Task<ActionResult<Employee1>> GetEmployee(int id)
         {
@@ -88,36 +52,6 @@ namespace EmpolyeeAdminPortal.Controllers
 
             return employee;
         }
-
-
-        //...serilog
-        //[HttpGet("{id}")]
-        //public async Task<IActionResult> GetEmployee(int id)
-        //{
-        //    _logger.LogInformation(
-        //        "Getting employee with ID {EmployeeId}",
-        //        id);
-
-        //    var employee = await _context.Employees.FindAsync(id);
-
-        //    if (employee == null)
-        //    {
-        //        _logger.LogWarning(
-        //            "Employee with ID {EmployeeId} was not found",
-        //            id);
-
-        //        return NotFound();
-        //    }
-
-        //    _logger.LogInformation(
-        //        "Employee with ID {EmployeeId} found",
-        //        id);
-
-        //    return Ok(employee);
-        //}
-
-
-
 
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateEmployee(

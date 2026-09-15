@@ -3,25 +3,8 @@ using Microsoft.EntityFrameworkCore;
 //using Repository.Design
 
 
-//1using Serilog;
-
-
 var builder = WebApplication.CreateBuilder(args);
 
-
-
-
-//2 Serilog configuration
-//builder.Host.UseSerilog((context, configuration) =>
-//{
-//    configuration
-//        .ReadFrom.Configuration(context.Configuration)
-//        .Enrich.FromLogContext()
-//        .WriteTo.Console()
-//        .WriteTo.File(
-//            "Logs/app-.log",
-//            rollingInterval: RollingInterval.Day);
-//});
 
 
 builder.Services.AddControllersWithViews();
@@ -46,10 +29,6 @@ if (app.Environment.IsDevelopment())
 }
 
 
-//3 Serilog HTTP request logging
-//app.UseSerilogRequestLogging();
-
-
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
@@ -61,3 +40,52 @@ app.MapControllerRoute(
     pattern: "{controller=Employee}/{action=Index}/{id?}");
 
 app.Run();
+
+
+//using Employee.Data.Data;
+//using Microsoft.EntityFrameworkCore;
+
+//var builder = WebApplication.CreateBuilder(args);
+
+//builder.Services.AddControllers();
+
+//var connectionString =
+//    builder.Configuration.GetConnectionString("DefaultConnection");
+
+//builder.Services.AddDbContext<EmployeeDbContext>(options =>
+//    options.UseMySql(
+//        connectionString,
+//        ServerVersion.AutoDetect(connectionString)
+//    ));
+
+//builder.Services.AddEndpointsApiExplorer();
+//builder.Services.AddSwaggerGen();
+
+//builder.Services.AddCors(options =>
+//{
+//    options.AddPolicy("AllowBlazorUI", policy =>
+//    {
+//        policy
+//            .AllowAnyOrigin()
+//            .AllowAnyHeader()
+//            .AllowAnyMethod();
+//    });
+//});
+
+//var app = builder.Build();
+
+//if (app.Environment.IsDevelopment())
+//{
+//    app.UseSwagger();
+//    app.UseSwaggerUI();
+//}
+
+//app.UseHttpsRedirection();
+
+//app.UseCors("AllowBlazorUI");
+
+//app.UseAuthorization();
+
+//app.MapControllers();
+
+//app.Run();
