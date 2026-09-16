@@ -58,8 +58,15 @@
 				<div class="mb-3">
 					<label>Department</label>
 
-					<InputText class="form-control"
-							   @bind-Value="employee.Department" />
+					@* <InputText class="form-control"
+							   @bind-Value="employee.Department" /> *@
+					<select class="form-select" @bind="employee.Department">
+						<option value="">Select Department</option>
+						<option value="HR">HR</option>
+						<option value="Designing">Designing</option>
+						<option value="Development">Development</option>
+						<option value="Sales">Sales</option>
+					</select>
 				</div>
 
 				<div class="mb-3">
