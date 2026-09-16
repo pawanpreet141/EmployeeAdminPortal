@@ -44,7 +44,6 @@ namespace EmployeeAdminPortal.Controllers
                 return BadRequest("Password is required.");
             }
 
-    
             var emailExists = await _context.Users
                 .AnyAsync(x => x.Email == request.Email);
 
@@ -63,7 +62,7 @@ namespace EmployeeAdminPortal.Controllers
             user.PasswordHash =
                 _passwordHasher.HashPassword(
                     user,
-                    request.Password);
+                    request.Password); 
 
             //_context.Users.Add(user);
 
@@ -90,6 +89,7 @@ namespace EmployeeAdminPortal.Controllers
                 message = "Account created successfully."
             });
         }
+
 
         [HttpPost("login")]
         public async Task<IActionResult> Login(
@@ -120,6 +120,7 @@ namespace EmployeeAdminPortal.Controllers
                 id = user.Id,
                 name = user.Name,
                 email = user.Email,
+                department = user.Department,
                 message = "Login successful."
             });
         }
@@ -142,4 +143,3 @@ namespace EmployeeAdminPortal.Controllers
         public string Password { get; set; } = string.Empty;
     }
 }
-

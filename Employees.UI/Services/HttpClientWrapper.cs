@@ -1,4 +1,6 @@
-﻿namespace Employees.UI.Services
+﻿using System.Net;
+
+namespace Employees.UI.Services
 {
     public class HttpClientWrapper
     {
