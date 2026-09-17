@@ -17,7 +17,7 @@ builder.Services.AddHttpClient<HttpClientWrapper>(client =>
 });
 
 //User Session
-builder.Services.AddScoped<UserSession>();
+builder.Services.AddSingleton<UserSession>();
 
 var app = builder.Build();
 
