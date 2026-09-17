@@ -3,7 +3,7 @@ using Employee.Data.Models;
 using System.Security.Permissions;
 
 
-namespace Repository.Design;
+namespace Employee.BusinessLogic;
 
 public class EmployeeRepository : IEmployeeRepository
 {

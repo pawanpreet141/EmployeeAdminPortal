@@ -1,9 +1,7 @@
-﻿
-
-using Employee.Data.Models;
+﻿using Employee.Data.Models;
 
 //namespace Employee.Data.Repositories
-namespace Repository.Design
+namespace Employee.BusinessLogic
 {
     public interface IEmployeeRepository
     {

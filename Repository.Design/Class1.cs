@@ -1,4 +1,4 @@
-﻿namespace Repository.Design
+﻿namespace Employee.BusinessLogic
 {
     public class Class1
     {

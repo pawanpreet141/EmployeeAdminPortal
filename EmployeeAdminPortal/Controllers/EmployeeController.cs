@@ -82,7 +82,7 @@
 //        }
 
 
-      
+
 //        [HttpDelete("{id}")]
 //        public async Task<IActionResult> DeleteEmployee(int id)
 //        {
@@ -110,7 +110,7 @@ using Employee.Data.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace EmployeeAdminPortal.Controllers
+namespace Employee.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
