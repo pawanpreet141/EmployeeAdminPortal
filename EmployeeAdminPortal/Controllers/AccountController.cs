@@ -1,7 +1,7 @@
-﻿using Employee.Data.Data;
-using Employee.Data.Models;
+﻿using Employee.Data.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Employee.Data.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace EmployeeAdminPortal.Controllers
@@ -62,7 +62,10 @@ namespace EmployeeAdminPortal.Controllers
             user.PasswordHash =
                 _passwordHasher.HashPassword(
                     user,
-                    request.Password); 
+                    request.Password);
+            
+            //using Employee.Data.Data;
+
 
             //_context.Users.Add(user);
 

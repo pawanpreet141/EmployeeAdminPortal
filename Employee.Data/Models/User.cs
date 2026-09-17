@@ -10,6 +10,11 @@
 
         public string PasswordHash { get; set; } = string.Empty;
         public string Department { get; set; } = string.Empty;
+
+        // One user can have many employees
+        public ICollection<Employee1> Employees { get; set; }
+    = new List<Employee1>();
+
     }
 }
 

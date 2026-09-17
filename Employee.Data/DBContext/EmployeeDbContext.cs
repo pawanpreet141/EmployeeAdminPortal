@@ -17,11 +17,29 @@ namespace Employee.Data.Data
         {
             base.OnModelCreating(modelBuilder);
 
+            // TblUsers table
             modelBuilder.Entity<User>()
                 .ToTable("TblUsers");
 
             modelBuilder.Entity<User>()
                 .HasKey(x => x.Id);
+
+
+            // Employees table
+            modelBuilder.Entity<Employee1>().ToTable("Employees");
+            
+            modelBuilder.Entity<Employee1>().HasKey(x => x.Id);
+
+             
+            // One User -> Many Employees
+            modelBuilder.Entity<Employee1>()
+                .HasOne(x => x.User)
+                .WithMany(x => x.Employees)
+                .HasForeignKey(x => x.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+
+
         }
     }
 }

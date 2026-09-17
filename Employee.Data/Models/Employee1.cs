@@ -21,5 +21,12 @@ namespace Employee.Data.Models
         public string Department { get; set; } = string.Empty;
 
         public decimal Salary { get; set; }
+
+
+        // This connects the employee to the user
+        public int UserId { get; set; }
+
+        // Navigation property
+        public User? User { get; set; }
     }
 }

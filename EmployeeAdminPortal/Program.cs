@@ -11,6 +11,13 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 
+
+// sqlite
+//string connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+//builder.Services.AddDbContext<EmployeeDbContext>(options =>
+//    options.UseSqlite(connectionString));
+//    ));
+
 builder.Services.AddDbContext<EmployeeDbContext>(options =>
     options.UseMySql(
         builder.Configuration.GetConnectionString("DefaultConnection"),

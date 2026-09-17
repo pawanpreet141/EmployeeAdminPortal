@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿//using System.Net;
+using System.Net.Http.Json;
 
 namespace Employees.UI.Services
 {
@@ -14,10 +15,45 @@ namespace Employees.UI.Services
 
 
         //Get
-        public async Task<T?> GetAsync<T>(string url)
+        //public async Task<T?> GetAsync<T>(string url)
+        //{
+        //    return await _httpClient.GetFromJsonAsync<T>(url);
+        //}
+public async Task<T?> GetAsync<T>(string url)
         {
-            return await _httpClient.GetFromJsonAsync<T>(url);
+            var response = await _httpClient.GetAsync(url);
+
+            var responseText =
+                await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new Exception(
+                    $"API Error ({(int)response.StatusCode}): {responseText}");
+            }
+
+            if (string.IsNullOrWhiteSpace(responseText))
+            {
+                return default;
+            }
+
+            try
+            {
+                return System.Text.Json.JsonSerializer.Deserialize<T>(
+                    responseText,
+                    new System.Text.Json.JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(
+                    $"Invalid JSON response from API: {responseText}",
+                    ex);
+            }
         }
+
 
 
         //Post
@@ -68,37 +104,140 @@ namespace Employees.UI.Services
             };
         }
 
-        public async Task<LoginResponse?> Login(
-            LoginRequest request)
+
+        //login
+        //public async Task<LoginResponse?> Login(
+        //    LoginRequest request)
+        //{
+        //    var response =
+        //        await _httpClient.PostAsJsonAsync(
+        //            "api/Account/login",
+        //            request);
+
+        //    if (response.IsSuccessStatusCode)
+        //    {
+        //        var result =
+        //            await response.Content
+        //                .ReadFromJsonAsync<LoginResponse>();
+
+        //        if (result != null)
+        //        {
+        //            result.Success = true;
+        //        }
+
+        //        return result;
+        //    }
+
+        //    var error =
+        //        await response.Content.ReadAsStringAsync();
+
+        //    return new LoginResponse
+        //    {
+        //        Success = false,
+        //        Message = error
+        //    };
+        //}
+
+
+        //public async Task<LoginResponse?> Login(
+        //    LoginRequest request)
+        //{
+        //    var response =
+        //        await _httpClient.PostAsJsonAsync(
+        //            "api/Account/login",
+        //            request);
+
+        //    // Read response as plain text first
+        //    var responseText =
+        //        await response.Content.ReadAsStringAsync();
+
+        //    if (response.IsSuccessStatusCode)
+        //    {
+        //        try
+        //        {
+        //            var result =
+        //                System.Text.Json.JsonSerializer.Deserialize<LoginResponse>(
+        //                    responseText,
+        //                    new System.Text.Json.JsonSerializerOptions
+        //                    {
+        //                        PropertyNameCaseInsensitive = true
+        //                    });
+
+        //            if (result != null)
+        //            {
+        //                result.Success = true;
+        //            }
+
+        //            return result;
+        //        }
+        //        catch
+        //        {
+        //            return new LoginResponse
+        //            {
+        //                Success = false,
+        //                Message = "Could not read login response."
+        //            };
+        //        }
+        //    }
+
+        //    return new LoginResponse
+        //    {
+        //        Success = false,
+        //        Message = responseText
+        //    };
+        //}
+
+
+        public async Task<LoginResponse?> Login(LoginRequest request)
         {
-            var response =
-                await _httpClient.PostAsJsonAsync(
+            try
+            {
+                var response = await _httpClient.PostAsJsonAsync(
                     "api/Account/login",
                     request);
 
-            if (response.IsSuccessStatusCode)
-            {
-                var result =
-                    await response.Content
-                        .ReadFromJsonAsync<LoginResponse>();
+                var responseText =
+                    await response.Content.ReadAsStringAsync();
 
-                if (result != null)
+                if (response.IsSuccessStatusCode)
                 {
-                    result.Success = true;
+                    var result =
+                        System.Text.Json.JsonSerializer.Deserialize<LoginResponse>(
+                            responseText,
+                            new System.Text.Json.JsonSerializerOptions
+                            {
+                                PropertyNameCaseInsensitive = true
+                            });
+
+                    if (result != null)
+                    {
+                        result.Success = true;
+                    }
+
+                    return result;
                 }
 
-                return result;
+                return new LoginResponse
+                {
+                    Success = false,
+                    Message = string.IsNullOrWhiteSpace(responseText)
+                        ? $"Login failed. HTTP {(int)response.StatusCode}"
+                        : responseText
+                };
             }
-
-            var error =
-                await response.Content.ReadAsStringAsync();
-
-            return new LoginResponse
+            catch (Exception ex)
             {
-                Success = false,
-                Message = error
-            };
+                return new LoginResponse
+                {
+                    Success = false,
+                    Message = ex.Message
+                };
+            }
         }
+
+
+
+
     }
 
     public class SignupRequest
@@ -134,6 +273,9 @@ namespace Employees.UI.Services
         public string Name { get; set; } = string.Empty;
 
         public string Email { get; set; } = string.Empty;
+
+        // this change 17
+        public string Department { get; set; } = string.Empty;
 
         public string Message { get; set; } = string.Empty;
     }
