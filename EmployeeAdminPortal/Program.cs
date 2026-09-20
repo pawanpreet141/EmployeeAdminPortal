@@ -11,17 +11,6 @@ using System.Text;
 var builder = WebApplication.CreateBuilder(args);
   
 
-//jwt token  3
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
-{
-    // Your JWT configurations here (Authority, Audience, TokenValidationParameters, etc.)
-});
-
 //5
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
