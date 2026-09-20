@@ -10,6 +10,19 @@
 
 <hr />
 
+@* 14 *@
+
+<AuthorizeView>
+    <Authorized>
+        <p>Welcome back, @context.User.Identity.Name!</p>
+    </Authorized>
+    <NotAuthorized>
+        <p>Please log in to view premium features.</p>
+    </NotAuthorized>
+</AuthorizeView>
+@* 
+14 *@
+
 <div class="mb-3">
     <button class="btn btn-primary" @onclick="ShowAddForm">
         Add Employee

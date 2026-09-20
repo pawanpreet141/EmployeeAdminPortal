@@ -14,6 +14,25 @@
     <HeadOutlet />
 </head>
 
+//11
+<CascadingAuthenticationStateProvider>
+    <Router AppAssembly="@typeof(App).Assembly">
+        <Found Context="routeData">
+            <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
+                <NotAuthorized>
+                    <h3>Sorry, you are not authorized to view this page.</h3>
+                </NotAuthorized>
+            </AuthorizeRouteView>
+        </Found>
+        <NotFound>
+            <LayoutView Layout="@typeof(MainLayout)">
+                <p>Sorry, there's nothing at this address.</p>
+            </LayoutView>
+        </NotFound>
+    </Router>
+</CascadingAuthenticationStateProvider>
+//11
+
 <body>
     <Routes />
     <ReconnectModal />

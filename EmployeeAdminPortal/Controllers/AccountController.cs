@@ -1,14 +1,65 @@
-﻿using Employee.Data.Models;
+﻿using Employee.Data.Data;
+using Employee.Data.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Employee.Data.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace Employee.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class AccountController : ControllerBase
+
+
+    //8 jwt
+    public class AuthController : ControllerBase
+{
+    private readonly IConfiguration _config;
+    public AuthController(IConfiguration config) => _config = config;
+
+    [HttpPost("login")]
+    public IActionResult Login([FromBody] LoginModel login)
+    {
+        // Replace this with your actual database credential verification
+        if (login.Username == "admin" && login.Password == "password")
+        {
+            var token = GenerateJwtToken(login.Username);
+            return Ok(new { Token = token });
+        }
+        return Unauthorized();
+    }
+
+    private string GenerateJwtToken(string username)
+    {
+        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
+        var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+
+        var claims = new[]
+        {
+            new Claim(ClaimTypes.Name, username),
+            new Claim(ClaimTypes.Role, "Admin") // Optional role claim
+        };
+
+        var token = new SecurityTokenDescriptor
+        {
+            Subject = new ClaimsIdentity(claims),
+            Expires = DateTime.UtcNow.AddHours(2),
+            Issuer = _config["Jwt:Issuer"],
+            Audience = _config["Jwt:Audience"],
+            SigningCredentials = credentials
+        };
+
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var stringToken = tokenHandler.CreateToken(token);
+        return tokenHandler.WriteToken(stringToken);
+    }
+}
+
+public record LoginModel(string Username, string Password);
+public class AccountController : ControllerBase
     {
         private readonly EmployeeDbContext _context;
         private readonly PasswordHasher<User> _passwordHasher;

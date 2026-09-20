@@ -1,13 +1,42 @@
 using Employee.Data.Data;
 using Employee.Data.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 //using Repository.Design
 
 
 var builder = WebApplication.CreateBuilder(args);
+  
 
+//jwt token  3
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    // Your JWT configurations here (Authority, Audience, TokenValidationParameters, etc.)
+});
 
+//5
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+        };
+    });
 
 builder.Services.AddControllersWithViews();
 
@@ -31,8 +60,13 @@ builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+//7
+builder.Services.AddAuthorization();
+builder.Services.AddControllers();
+
 var app = builder.Build();
 
+//sqlite
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<EmployeeDbContext>();
@@ -47,6 +81,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+//6
+app.UseAuthentication();
+
 app.UseAuthorization();
 
 app.MapControllers();
@@ -56,52 +93,3 @@ app.MapControllerRoute(
     pattern: "{controller=Employee}/{action=Index}/{id?}");
 
 app.Run();
-
-
-//using Employee.Data.Data;
-//using Microsoft.EntityFrameworkCore;
-
-//var builder = WebApplication.CreateBuilder(args);
-
-//builder.Services.AddControllers();
-
-//var connectionString =
-//    builder.Configuration.GetConnectionString("DefaultConnection");
-
-//builder.Services.AddDbContext<EmployeeDbContext>(options =>
-//    options.UseMySql(
-//        connectionString,
-//        ServerVersion.AutoDetect(connectionString)
-//    ));
-
-//builder.Services.AddEndpointsApiExplorer();
-//builder.Services.AddSwaggerGen();
-
-//builder.Services.AddCors(options =>
-//{
-//    options.AddPolicy("AllowBlazorUI", policy =>
-//    {
-//        policy
-//            .AllowAnyOrigin()
-//            .AllowAnyHeader()
-//            .AllowAnyMethod();
-//    });
-//});
-
-//var app = builder.Build();
-
-//if (app.Environment.IsDevelopment())
-//{
-//    app.UseSwagger();
-//    app.UseSwaggerUI();
-//}
-
-//app.UseHttpsRedirection();
-
-//app.UseCors("AllowBlazorUI");
-
-//app.UseAuthorization();
-
-//app.MapControllers();
-
-//app.Run();
