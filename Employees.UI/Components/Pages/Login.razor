@@ -8,17 +8,17 @@
 @inject UserSession UserSession
 
 @* 13 *@
-@inject HttpClient Http
+@* @inject HttpClient Http
 @inject Blazored.LocalStorage.ILocalStorageService LocalStorage
 @inject AuthenticationStateProvider AuthStateProvider
-@inject NavigationManager NavManager
+@inject NavigationManager NavManager *@
 @* 13 *@
 
 <PageTitle>Login</PageTitle>
 
 
 @* 12 *@
-
+@* 
 
 <CascadingAuthenticationStateProvider>
     <Router AppAssembly="@typeof(App).Assembly">
@@ -35,7 +35,7 @@
             </LayoutView>
         </NotFound>
     </Router>
-</CascadingAuthenticationStateProvider>
+</CascadingAuthenticationStateProvider> *@
 @* 12 *@
 
 
@@ -82,12 +82,6 @@
                         </div>
                     }
 
-             @*        <button class="btn btn-primary w-100"
-                            @onclick="LoginUser">
-
-                        Login
-
-                    </button> *@
                     <button type="button"
                     class="btn btn-primary w-100"
                     @onclick="LoginUser">

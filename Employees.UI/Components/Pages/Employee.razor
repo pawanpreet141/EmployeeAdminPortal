@@ -12,14 +12,14 @@
 
 @* 14 *@
 
-<AuthorizeView>
+@* <AuthorizeView>
     <Authorized>
         <p>Welcome back, @context.User.Identity.Name!</p>
     </Authorized>
     <NotAuthorized>
         <p>Please log in to view premium features.</p>
     </NotAuthorized>
-</AuthorizeView>
+</AuthorizeView> *@
 @* 
 14 *@
 
@@ -72,9 +72,6 @@
 
 				<div class="mb-3">
 					<label>Department</label>
-
-					@* <InputText class="form-control"
-							   @bind-Value="employee.Department" /> *@
 
 					<select class="form-select" @bind="employee.Department">
 						<option value="">Select Department</option>

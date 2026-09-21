@@ -14,11 +14,6 @@ namespace Employees.UI.Services
         }
 
 
-        //Get
-        //public async Task<T?> GetAsync<T>(string url)
-        //{
-        //    return await _httpClient.GetFromJsonAsync<T>(url);
-        //}
 public async Task<T?> GetAsync<T>(string url)
         {
             var response = await _httpClient.GetAsync(url);
@@ -103,90 +98,6 @@ public async Task<T?> GetAsync<T>(string url)
                 Message = error
             };
         }
-
-
-        //login
-        //public async Task<LoginResponse?> Login(
-        //    LoginRequest request)
-        //{
-        //    var response =
-        //        await _httpClient.PostAsJsonAsync(
-        //            "api/Account/login",
-        //            request);
-
-        //    if (response.IsSuccessStatusCode)
-        //    {
-        //        var result =
-        //            await response.Content
-        //                .ReadFromJsonAsync<LoginResponse>();
-
-        //        if (result != null)
-        //        {
-        //            result.Success = true;
-        //        }
-
-        //        return result;
-        //    }
-
-        //    var error =
-        //        await response.Content.ReadAsStringAsync();
-
-        //    return new LoginResponse
-        //    {
-        //        Success = false,
-        //        Message = error
-        //    };
-        //}
-
-
-        //public async Task<LoginResponse?> Login(
-        //    LoginRequest request)
-        //{
-        //    var response =
-        //        await _httpClient.PostAsJsonAsync(
-        //            "api/Account/login",
-        //            request);
-
-        //    // Read response as plain text first
-        //    var responseText =
-        //        await response.Content.ReadAsStringAsync();
-
-        //    if (response.IsSuccessStatusCode)
-        //    {
-        //        try
-        //        {
-        //            var result =
-        //                System.Text.Json.JsonSerializer.Deserialize<LoginResponse>(
-        //                    responseText,
-        //                    new System.Text.Json.JsonSerializerOptions
-        //                    {
-        //                        PropertyNameCaseInsensitive = true
-        //                    });
-
-        //            if (result != null)
-        //            {
-        //                result.Success = true;
-        //            }
-
-        //            return result;
-        //        }
-        //        catch
-        //        {
-        //            return new LoginResponse
-        //            {
-        //                Success = false,
-        //                Message = "Could not read login response."
-        //            };
-        //        }
-        //    }
-
-        //    return new LoginResponse
-        //    {
-        //        Success = false,
-        //        Message = responseText
-        //    };
-        //}
-
 
         public async Task<LoginResponse?> Login(LoginRequest request)
         {
@@ -274,7 +185,6 @@ public async Task<T?> GetAsync<T>(string url)
 
         public string Email { get; set; } = string.Empty;
 
-        // this change 17
         public string Department { get; set; } = string.Empty;
 
         public string Message { get; set; } = string.Empty;

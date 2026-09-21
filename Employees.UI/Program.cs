@@ -22,16 +22,16 @@ builder.Services.AddHttpClient<HttpClientWrapper>(client =>
 builder.Services.AddSingleton<UserSession>();
 
 //10
-var builder = WebAssemblyHostBuilder.CreateDefault(args);
-builder.RootComponents.Add<App>("#app");
+//var builder = WebAssemblyHostBuilder.CreateDefault(args);
+//builder.RootComponents.Add<App>("#app");
 
-builder.Services.AddBlazoredLocalStorage();
-builder.Services.AddAuthorizationCore();
-builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthStateProvider>();
-builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:7001/") });
+//builder.Services.AddBlazoredLocalStorage();
+//builder.Services.AddAuthorizationCore();
+//builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthStateProvider>();
+//builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:7001/") });
 
-await builder.Build().RunAsync();
-//10
+//await builder.Build().RunAsync();
+////10
 
 
 var app = builder.Build();

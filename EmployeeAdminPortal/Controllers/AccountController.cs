@@ -15,60 +15,78 @@ namespace Employee.API.Controllers
 
 
     //8 jwt
-    public class AuthController : ControllerBase
-{
-    private readonly IConfiguration _config;
-    public AuthController(IConfiguration config) => _config = config;
+    //    public class AuthController : ControllerBase
+    //{
+    //    private readonly IConfiguration _config;
+    //    public AuthController(IConfiguration config) => _config = config;
 
-    [HttpPost("login")]
-    public IActionResult Login([FromBody] LoginModel login)
-    {
-        // Replace this with your actual database credential verification
-        if (login.Username == "admin" && login.Password == "password")
-        {
-            var token = GenerateJwtToken(login.Username);
-            return Ok(new { Token = token });
-        }
-        return Unauthorized();
-    }
+    //    [HttpPost("login")]
+    //    public IActionResult Login([FromBody] LoginModel login)
+    //    {
+    //        // Replace this with your actual database credential verification
+    //        if (login.Username == "admin" && login.Password == "password")
+    //        {
+    //            var token = GenerateJwtToken(login.Username);
+    //            return Ok(new { Token = token });
+    //        }
+    //        return Unauthorized();
+    //    }
 
-    private string GenerateJwtToken(string username)
-    {
-        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
-        var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+    //    private string GenerateJwtToken(string username)
+    //    {
+    //        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
+    //        var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+    //        var claims = new[]
+    //        {
+    //            new Claim(ClaimTypes.Name, username),
+    //            new Claim(ClaimTypes.Role, "Admin") // Optional role claim
+    //        };
 
-        var claims = new[]
-        {
-            new Claim(ClaimTypes.Name, username),
-            new Claim(ClaimTypes.Role, "Admin") // Optional role claim
-        };
+    //        var token = new SecurityTokenDescriptor
+    //        {
+    //            Subject = new ClaimsIdentity(claims),
+    //            Expires = DateTime.UtcNow.AddHours(2),
+    //            Issuer = _config["Jwt:Issuer"],
+    //            Audience = _config["Jwt:Audience"],
+    //            SigningCredentials = credentials
+    //        };
 
-        var token = new SecurityTokenDescriptor
-        {
-            Subject = new ClaimsIdentity(claims),
-            Expires = DateTime.UtcNow.AddHours(2),
-            Issuer = _config["Jwt:Issuer"],
-            Audience = _config["Jwt:Audience"],
-            SigningCredentials = credentials
-        };
+    //        var tokenHandler = new JwtSecurityTokenHandler();
+    //        var stringToken = tokenHandler.CreateToken(token);
+    //        return tokenHandler.WriteToken(stringToken);
+    //    }
+    //}
 
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var stringToken = tokenHandler.CreateToken(token);
-        return tokenHandler.WriteToken(stringToken);
-    }
-}
 
-public record LoginModel(string Username, string Password);
-public class AccountController : ControllerBase
+    //public record LoginModel(string Username, string Password);
+
+
+    public class AccountController : ControllerBase
     {
         private readonly EmployeeDbContext _context;
         private readonly PasswordHasher<User> _passwordHasher;
 
-        public AccountController(EmployeeDbContext context)
+        //21
+        private readonly IConfiguration _configuration;
+        //21
+
+        //public AccountController(EmployeeDbContext context)
+        //{
+        //    _context = context;
+        //    _passwordHasher = new PasswordHasher<User>();
+        //}
+
+
+        //21
+        public AccountController(
+    EmployeeDbContext context,
+    IConfiguration configuration)
         {
             _context = context;
+            _configuration = configuration;
             _passwordHasher = new PasswordHasher<User>();
         }
+        //21
 
         [HttpPost("signup")]
         public async Task<IActionResult> Signup(
@@ -114,13 +132,6 @@ public class AccountController : ControllerBase
                 _passwordHasher.HashPassword(
                     user,
                     request.Password);
-            
-            //using Employee.Data.Data;
-
-
-            //_context.Users.Add(user);
-
-            //await _context.SaveChangesAsync();
 
             try
             {
@@ -169,31 +180,86 @@ public class AccountController : ControllerBase
                 return Unauthorized("Invalid email or password.");
             }
 
+            //return Ok(new
+            //{
+            //    id = user.Id,
+            //    name = user.Name,
+            //    email = user.Email,
+            //    department = user.Department,
+            //    message = "Login successful."
+            //});
+
+
+            //21
+            var token = GenerateJwtToken(user);
+
             return Ok(new
             {
                 id = user.Id,
                 name = user.Name,
                 email = user.Email,
                 department = user.Department,
+                token = token,
                 message = "Login successful."
             });
+            //21
         }
-    }
+        // }
+        //21
+        private string GenerateJwtToken(User user)
+        {
+            var key = _configuration["Jwt:Key"];
+            var issuer = _configuration["Jwt:Issuer"];
+            var audience = _configuration["Jwt:Audience"];
 
-    public class SignupRequest
-    {
-        public string Name { get; set; } = string.Empty;
+            var securityKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(key!));
 
-        public string Email { get; set; } = string.Empty;
-        public string Department { get; set; } = string.Empty;
+            var credentials = new SigningCredentials(
+                securityKey,
+                SecurityAlgorithms.HmacSha256);
 
-        public string Password { get; set; } = string.Empty;
-    }
+            var claims = new[]
+            {
+        new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+        new Claim(ClaimTypes.Name, user.Name),
+        new Claim(ClaimTypes.Email, user.Email),
+        new Claim("Department", user.Department)
+    };
 
-    public class LoginRequest
-    {
-        public string Email { get; set; } = string.Empty;
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(claims),
+                Expires = DateTime.UtcNow.AddHours(2),
+                Issuer = issuer,
+                Audience = audience,
+                SigningCredentials = credentials
+            };
 
-        public string Password { get; set; } = string.Empty;
+            var tokenHandler = new JwtSecurityTokenHandler();
+
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+
+            return tokenHandler.WriteToken(token);
+        }
+
+        //21
+
+        public class SignupRequest
+        {
+            public string Name { get; set; } = string.Empty;
+
+            public string Email { get; set; } = string.Empty;
+            public string Department { get; set; } = string.Empty;
+
+            public string Password { get; set; } = string.Empty;
+        }
+
+        public class LoginRequest
+        {
+            public string Email { get; set; } = string.Empty;
+
+            public string Password { get; set; } = string.Empty;
+        }
     }
 }
