@@ -1,4 +1,6 @@
-﻿namespace Employees.UI.Services
+﻿using Microsoft.AspNetCore.Identity;
+
+namespace Employees.UI.Services
 {
     public class UserSession
     {
@@ -10,10 +12,10 @@
 
         public string Department { get; private set; } = string.Empty;
 
-
+        
         public bool IsLoggedIn =>
             UserId > 0;
-
+        
 
         public void Login(
             int userId,
@@ -40,6 +42,7 @@
             Email = string.Empty;
 
             Department = string.Empty;
+
         }
     }
 }

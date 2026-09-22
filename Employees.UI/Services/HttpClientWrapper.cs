@@ -1,4 +1,5 @@
 ﻿//using System.Net;
+using Intersoft.Crosslight.Mobile;
 using System.Net.Http.Json;
 
 namespace Employees.UI.Services
@@ -12,7 +13,6 @@ namespace Employees.UI.Services
         {
             _httpClient = httpClient;
         }
-
 
 public async Task<T?> GetAsync<T>(string url)
         {
@@ -167,6 +167,7 @@ public async Task<T?> GetAsync<T>(string url)
 
         public string Password { get; set; } = string.Empty;
     }
+
 
     public class ApiResponse
     {

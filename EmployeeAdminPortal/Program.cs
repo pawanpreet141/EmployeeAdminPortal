@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 //21
-//using Microsoft.OpenApi.Models;
 using System.Text;
 //using Repository.Design
 
@@ -38,6 +37,7 @@ builder.Services.AddControllersWithViews();
 //builder.Services.AddDbContext<EmployeeDbContext>(options =>
 //    options.UseSqlite(connectionString));
 
+//MySql
 builder.Services.AddDbContext<EmployeeDbContext>(options =>
     options.UseMySql(
         builder.Configuration.GetConnectionString("DefaultConnection"),

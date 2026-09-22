@@ -3,6 +3,7 @@ using Employee.Data.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Employee.API.Controllers
 {
@@ -108,7 +109,6 @@ namespace Employee.API.Controllers
             {
                 return BadRequest();
             }
-
             
             // Find employee only if it belongs to this user
             var existingEmployee =
@@ -127,6 +127,7 @@ namespace Employee.API.Controllers
             existingEmployee.Age = employee.Age;
             existingEmployee.Department = employee.Department;
             existingEmployee.Salary = employee.Salary;
+
 
             await _context.SaveChangesAsync();
 

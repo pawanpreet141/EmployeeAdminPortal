@@ -16,7 +16,6 @@ namespace Employees.UI.Models
         [Range(18, 60, ErrorMessage = "Age must be between 18 and 60.")]
         public int Age { get; set; }
 
-
         public string Department { get; set; } = string.Empty;
 
         public decimal Salary { get; set; }
