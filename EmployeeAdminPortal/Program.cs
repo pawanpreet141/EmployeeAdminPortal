@@ -8,6 +8,9 @@ using Microsoft.OpenApi;
 //21
 using System.Text;
 //using Repository.Design
+//23
+using FluentValidation;
+using Employee.API.Validators;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -81,6 +84,12 @@ builder.Services.AddSwaggerGen(options =>
 //7
 builder.Services.AddAuthorization();
 builder.Services.AddControllers();
+
+
+//23
+builder.Services.AddValidatorsFromAssemblyContaining<EmployeeValidator>();
+//23
+
 
 var app = builder.Build();
 

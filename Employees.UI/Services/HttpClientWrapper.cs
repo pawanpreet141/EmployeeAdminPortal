@@ -8,12 +8,10 @@ namespace Employees.UI.Services
     {
         private readonly HttpClient _httpClient;
 
-
         public HttpClientWrapper(HttpClient httpClient)
         {
             _httpClient = httpClient;
         }
-
 public async Task<T?> GetAsync<T>(string url)
         {
             var response = await _httpClient.GetAsync(url);

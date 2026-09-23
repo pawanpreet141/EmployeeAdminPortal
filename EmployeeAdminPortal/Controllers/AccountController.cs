@@ -1,5 +1,7 @@
-﻿using Employee.Data.Data;
+﻿//23
+using Employee.Data.Data;
 using Employee.Data.Models;
+using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -12,126 +14,121 @@ namespace Employee.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-
-
-    //8 jwt
-    //    public class AuthController : ControllerBase
-    //{
-    //    private readonly IConfiguration _config;
-    //    public AuthController(IConfiguration config) => _config = config;
-
-    //    [HttpPost("login")]
-    //    public IActionResult Login([FromBody] LoginModel login)
-    //    {
-    //        // Replace this with your actual database credential verification
-    //        if (login.Username == "admin" && login.Password == "password")
-    //        {
-    //            var token = GenerateJwtToken(login.Username);
-    //            return Ok(new { Token = token });
-    //        }
-    //        return Unauthorized();
-    //    }
-
-    //    private string GenerateJwtToken(string username)
-    //    {
-    //        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
-    //        var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-    //        var claims = new[]
-    //        {
-    //            new Claim(ClaimTypes.Name, username),
-    //            new Claim(ClaimTypes.Role, "Admin") // Optional role claim
-    //        };
-
-    //        var token = new SecurityTokenDescriptor
-    //        {
-    //            Subject = new ClaimsIdentity(claims),
-    //            Expires = DateTime.UtcNow.AddHours(2),
-    //            Issuer = _config["Jwt:Issuer"],
-    //            Audience = _config["Jwt:Audience"],
-    //            SigningCredentials = credentials
-    //        };
-
-    //        var tokenHandler = new JwtSecurityTokenHandler();
-    //        var stringToken = tokenHandler.CreateToken(token);
-    //        return tokenHandler.WriteToken(stringToken);
-    //    }
-    //}
-
-
-    //public record LoginModel(string Username, string Password);
-
-
     public class AccountController : ControllerBase
     {
         private readonly EmployeeDbContext _context;
+
         private readonly PasswordHasher<User> _passwordHasher;
 
-        //21
         private readonly IConfiguration _configuration;
-        //21
 
-        //public AccountController(EmployeeDbContext context)
-        //{
-        //    _context = context;
-        //    _passwordHasher = new PasswordHasher<User>();
-        //}
+        private readonly IValidator<SignupRequest> _signupValidator;
+
+        private readonly IValidator<LoginRequest> _loginValidator;
+        
 
 
-        //21
+       // Constructor
         public AccountController(
-    EmployeeDbContext context,
-    IConfiguration configuration)
+            EmployeeDbContext context,
+            IConfiguration configuration,
+            IValidator<SignupRequest> signupValidator,
+            IValidator<LoginRequest> loginValidator)
         {
             _context = context;
+
             _configuration = configuration;
+
             _passwordHasher = new PasswordHasher<User>();
+
+            _signupValidator = signupValidator;
+
+            _loginValidator = loginValidator;
         }
-        //21
+
+
+        
+        // SIGNUP
+        
 
         [HttpPost("signup")]
         public async Task<IActionResult> Signup(
             [FromBody] SignupRequest request)
         {
-            if (string.IsNullOrWhiteSpace(request.Name))
+            // FluentValidation
+            var validationResult =
+                await _signupValidator.ValidateAsync(request);
+
+            //if (!validationResult.IsValid)
+            //{
+            //    return BadRequest(
+            //        validationResult.Errors);
+            //}
+
+            //if (!validationResult.IsValid)
+            //{
+            //    return BadRequest(
+            //        validationResult.Errors.Select(x => new
+            //        {
+            //            field = x.PropertyName,
+            //            message = x.ErrorMessage
+            //        })
+            //    );
+            //}
+
+
+            //if (!validationResult.IsValid)
+            //{
+            //    return BadRequest(new
+            //    {
+            //        message = string.Join(" ",
+            //            validationResult.Errors
+            //                .Select(x => x.ErrorMessage)
+            //                .Distinct())
+            //    });
+            //}
+
+            if (!validationResult.IsValid)
             {
-                return BadRequest("Name is required.");
+                return BadRequest(new
+                {
+                    message = validationResult.Errors
+                        .First()
+                        .ErrorMessage
+                });
             }
 
-            if (string.IsNullOrWhiteSpace(request.Email))
-            {
-                return BadRequest("Email is required.");
-            }
 
-            if (string.IsNullOrWhiteSpace(request.Department))
-            {
-                return BadRequest("Department is required.");
-            }
-
-
-            if (string.IsNullOrWhiteSpace(request.Password))
-            {
-                return BadRequest("Password is required.");
-            }
-
-            var emailExists = await _context.Users
-                .AnyAsync(x => x.Email == request.Email);
+            // Check email already exists
+            var emailExists =
+                await _context.Users
+                    .AnyAsync(x =>
+                        x.Email == request.Email);
 
             if (emailExists)
             {
-                return BadRequest("Email already exists.");
+                return BadRequest(
+                    "Email already exists.");
             }
 
+
+            // Create user
             var user = new User
             {
                 Name = request.Name,
+
                 Email = request.Email,
+
                 Department = request.Department
             };
 
+
+            // Hash password
             user.PasswordHash =
                 _passwordHasher.HashPassword(
                     user,
                     request.Password);
+
 
             try
             {
@@ -144,122 +141,226 @@ namespace Employee.API.Controllers
                 return BadRequest(new
                 {
                     message = ex.Message,
-                    innerException = ex.InnerException?.Message
+
+                    innerException =
+                        ex.InnerException?.Message
                 });
             }
 
 
             return Ok(new
             {
-                message = "Account created successfully."
+                message =
+                    "Account created successfully."
             });
         }
 
 
+        
+        // LOGIN
+        
         [HttpPost("login")]
         public async Task<IActionResult> Login(
             [FromBody] LoginRequest request)
         {
-            var user = await _context.Users
-                .FirstOrDefaultAsync(x =>
-                    x.Email == request.Email);
+            // FluentValidation
+            var validationResult =
+                await _loginValidator.ValidateAsync(request);
+
+            //if (!validationResult.IsValid)
+            //{
+            //    return BadRequest(
+            //        validationResult.Errors);
+            //}
+
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(
+                    validationResult.Errors.Select(x => new
+                    {
+                        field = x.PropertyName,
+                        message = x.ErrorMessage
+                    })
+                );
+            }
+
+
+            // Find user
+            var user =
+                await _context.Users
+                    .FirstOrDefaultAsync(x =>
+                        x.Email == request.Email);
+
+            //if (user == null)
+            //{
+            //    return Unauthorized(
+            //        "Invalid email or password.");
+            //}
 
             if (user == null)
             {
-                return Unauthorized("Invalid email or password.");
+                return Unauthorized(new
+                {
+                    message = "Invalid email or password."
+                });
             }
 
+
+            // Verify password
             var result =
                 _passwordHasher.VerifyHashedPassword(
                     user,
                     user.PasswordHash,
                     request.Password);
 
-            if (result == PasswordVerificationResult.Failed)
+            //if (result ==
+            //    PasswordVerificationResult.Failed)
+            //{
+            //    return Unauthorized(
+            //        "Invalid email or password.");
+            //}
+
+            if (result ==
+    PasswordVerificationResult.Failed)
             {
-                return Unauthorized("Invalid email or password.");
+                return Unauthorized(new
+                {
+                    message = "Invalid email or password."
+                });
             }
 
-            //return Ok(new
-            //{
-            //    id = user.Id,
-            //    name = user.Name,
-            //    email = user.Email,
-            //    department = user.Department,
-            //    message = "Login successful."
-            //});
 
+            // Generate JWT
+            var token =
+                GenerateJwtToken(user);
 
-            //21
-            var token = GenerateJwtToken(user);
 
             return Ok(new
             {
                 id = user.Id,
+
                 name = user.Name,
+
                 email = user.Email,
+
                 department = user.Department,
+
                 token = token,
+
                 message = "Login successful."
             });
-            //21
         }
-        // }
-        //21
+
+
+        
+        // GENERATE JWT
+        
+
         private string GenerateJwtToken(User user)
         {
-            var key = _configuration["Jwt:Key"];
-            var issuer = _configuration["Jwt:Issuer"];
-            var audience = _configuration["Jwt:Audience"];
+            var key =
+                _configuration["Jwt:Key"];
 
-            var securityKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(key!));
+            var issuer =
+                _configuration["Jwt:Issuer"];
 
-            var credentials = new SigningCredentials(
-                securityKey,
-                SecurityAlgorithms.HmacSha256);
+            var audience =
+                _configuration["Jwt:Audience"];
+
+
+            var securityKey =
+                new SymmetricSecurityKey(
+                    Encoding.UTF8.GetBytes(key!));
+
+
+            var credentials =
+                new SigningCredentials(
+                    securityKey,
+                    SecurityAlgorithms.HmacSha256);
+
 
             var claims = new[]
             {
-        new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-        new Claim(ClaimTypes.Name, user.Name),
-        new Claim(ClaimTypes.Email, user.Email),
-        new Claim("Department", user.Department)
-    };
+                new Claim(
+                    ClaimTypes.NameIdentifier,
+                    user.Id.ToString()),
 
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddHours(2),
-                Issuer = issuer,
-                Audience = audience,
-                SigningCredentials = credentials
+                new Claim(
+                    ClaimTypes.Name,
+                    user.Name),
+
+                new Claim(
+                    ClaimTypes.Email,
+                    user.Email),
+
+                new Claim(
+                    "Department",
+                    user.Department)
             };
 
-            var tokenHandler = new JwtSecurityTokenHandler();
 
-            var token = tokenHandler.CreateToken(tokenDescriptor);
+            var tokenDescriptor =
+                new SecurityTokenDescriptor
+                {
+                    Subject =
+                        new ClaimsIdentity(claims),
+
+                    Expires =
+                        DateTime.UtcNow.AddHours(2),
+
+                    Issuer = issuer,
+
+                    Audience = audience,
+
+                    SigningCredentials =
+                        credentials
+                };
+
+
+            var tokenHandler =
+                new JwtSecurityTokenHandler();
+
+
+            var token =
+                tokenHandler.CreateToken(
+                    tokenDescriptor);
+
 
             return tokenHandler.WriteToken(token);
         }
 
-        //21
+
+        
+        // SIGNUP REQUEST
+        
 
         public class SignupRequest
         {
-            public string Name { get; set; } = string.Empty;
+            public string Name { get; set; }
+                = string.Empty;
 
-            public string Email { get; set; } = string.Empty;
-            public string Department { get; set; } = string.Empty;
+            public string Email { get; set; }
+                = string.Empty;
 
-            public string Password { get; set; } = string.Empty;
+            public string Department { get; set; }
+                = string.Empty;
+
+            public string Password { get; set; }
+                = string.Empty;
         }
+
+
+        
+        // LOGIN REQUEST
+        
 
         public class LoginRequest
         {
-            public string Email { get; set; } = string.Empty;
+            public string Email { get; set; }
+                = string.Empty;
 
-            public string Password { get; set; } = string.Empty;
+            public string Password { get; set; }
+                = string.Empty;
         }
     }
 }
