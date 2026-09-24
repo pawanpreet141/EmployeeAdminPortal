@@ -1,5 +1,7 @@
 ﻿//using System.Net;
+using Employees.UI.Services;
 using Intersoft.Crosslight.Mobile;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 
 namespace Employees.UI.Services
@@ -8,13 +10,78 @@ namespace Employees.UI.Services
     {
         private readonly HttpClient _httpClient;
 
-        public HttpClientWrapper(HttpClient httpClient)
+        private readonly UserSession _userSession;
+
+        //public HttpClientWrapper(HttpClient httpClient)
+        //{
+        //    _httpClient = httpClient;
+        //}
+
+
+        public HttpClientWrapper(
+         HttpClient httpClient,
+         UserSession userSession)
         {
             _httpClient = httpClient;
+            _userSession = userSession;
         }
-public async Task<T?> GetAsync<T>(string url)
+
+
+        //public async Task<T?> GetAsync<T>(string url)
+        //{
+        //    var response = await _httpClient.GetAsync(url);
+
+        //    var responseText =
+        //        await response.Content.ReadAsStringAsync();
+
+        //    if (!response.IsSuccessStatusCode)
+        //    {
+        //        throw new Exception(
+        //            $"API Error ({(int)response.StatusCode}): {responseText}");
+        //    }
+
+        //    if (string.IsNullOrWhiteSpace(responseText))
+        //    {
+        //        return default;
+        //    }
+
+
+
+        //    try
+        //    {
+        //        return System.Text.Json.JsonSerializer.Deserialize<T>(
+        //            responseText,
+        //            new System.Text.Json.JsonSerializerOptions
+        //            {
+        //                PropertyNameCaseInsensitive = true
+        //            });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw new Exception(
+        //            $"Invalid JSON response from API: {responseText}",
+        //            ex);
+        //    }
+        //}
+
+
+
+        public async Task<T?> GetAsync<T>(string url)
         {
-            var response = await _httpClient.GetAsync(url);
+            using var request = new HttpRequestMessage(
+                HttpMethod.Get,
+                url);
+
+            if (!string.IsNullOrWhiteSpace(_userSession.Token))
+            {
+                request.Headers.Authorization =
+                    new AuthenticationHeaderValue(
+                        "Bearer",
+                        _userSession.Token);
+            }
+
+            var response =
+                await _httpClient.SendAsync(request);
 
             var responseText =
                 await response.Content.ReadAsStringAsync();
@@ -30,50 +97,114 @@ public async Task<T?> GetAsync<T>(string url)
                 return default;
             }
 
-            try
-            {
-                return System.Text.Json.JsonSerializer.Deserialize<T>(
+            return System.Text.Json.JsonSerializer
+                .Deserialize<T>(
                     responseText,
                     new System.Text.Json.JsonSerializerOptions
                     {
                         PropertyNameCaseInsensitive = true
                     });
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(
-                    $"Invalid JSON response from API: {responseText}",
-                    ex);
-            }
         }
+    
 
 
 
-        //Post
-        public async Task<HttpResponseMessage> PostAsync<T>(string url, T data)
-        {
-            return await _httpClient.PostAsJsonAsync(url, data);
-        }
 
 
 
-        //Put
-        public async Task<HttpResponseMessage> PutAsync<T>(string url, T data)
-        {
-            return await _httpClient.PutAsJsonAsync(url, data);
-        }
 
-        //Delete
-        public async Task<HttpResponseMessage> DeleteAsync(string url)
-        {
-            return await _httpClient.DeleteAsync(url);
-        }
+//Post
+public async Task<HttpResponseMessage> PostAsync<T>(string url, T data)
+{
+    return await _httpClient.PostAsJsonAsync(url, data);
+}
 
 
 
-        // signup, login 
+//public async Task<HttpResponseMessage> PostAsync<T>(
+//    string url,
+//    T data)
+//{
+//    using var request =
+//        new HttpRequestMessage(
+//            HttpMethod.Post,
+//            url);
 
-        public async Task<ApiResponse?> Signup(
+//    request.Content =
+//        JsonContent.Create(data);
+
+//    if (!string.IsNullOrWhiteSpace(_userSession.Token))
+//    {
+//        request.Headers.Authorization =
+//            new AuthenticationHeaderValue(
+//                "Bearer",
+//                _userSession.Token);
+//    }
+
+//    return await _httpClient.SendAsync(request);
+//}
+
+//Put
+public async Task<HttpResponseMessage> PutAsync<T>(string url, T data)
+{
+    return await _httpClient.PutAsJsonAsync(url, data);
+}
+
+
+
+//public async Task<HttpResponseMessage> PutAsync<T>(
+//    string url,
+//    T data)
+//{
+//    using var request =
+//        new HttpRequestMessage(
+//            HttpMethod.Put,
+//            url);
+
+//    request.Content =
+//        JsonContent.Create(data);
+
+//    if (!string.IsNullOrWhiteSpace(_userSession.Token))
+//    {
+//        request.Headers.Authorization =
+//            new AuthenticationHeaderValue(
+//                "Bearer",
+//                _userSession.Token);
+//    }
+
+//    return await _httpClient.SendAsync(request);
+//}
+
+//Delete
+public async Task<HttpResponseMessage> DeleteAsync(string url)
+{
+    return await _httpClient.DeleteAsync(url);
+}
+
+
+//public async Task<HttpResponseMessage> DeleteAsync(
+//    string url)
+//{
+//    using var request =
+//        new HttpRequestMessage(
+//            HttpMethod.Delete,
+//            url);
+
+//    if (!string.IsNullOrWhiteSpace(_userSession.Token))
+//    {
+//        request.Headers.Authorization =
+//            new AuthenticationHeaderValue(
+//                "Bearer",
+//                _userSession.Token);
+//    }
+
+//    return await _httpClient.SendAsync(request);
+//}
+
+
+// signup, login 
+
+public async Task<ApiResponse?> Signup(
             SignupRequest request)
         {
             var response =
@@ -186,6 +317,8 @@ public async Task<T?> GetAsync<T>(string url)
 
         public string Department { get; set; } = string.Empty;
 
-        public string Message { get; set; } = string.Empty;
+    public string Token { get; set; } = string.Empty;
+
+    public string Message { get; set; } = string.Empty;
     }
 }

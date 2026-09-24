@@ -1,22 +1,18 @@
+//24
+using System.Text.Json;
 using Employees.UI.Services;
 
 namespace Employees.UI.Components.Pages
 {
     public partial class Signup
     {
-
         private string Name = string.Empty;
-
         private string Email = string.Empty;
-
         private string Department = string.Empty;
-
         private string Password = string.Empty;
-
         private string ConfirmPassword = string.Empty;
 
         private string ErrorMessage = string.Empty;
-
         private string SuccessMessage = string.Empty;
 
         private async Task SignupUser()
@@ -24,23 +20,40 @@ namespace Employees.UI.Components.Pages
             ErrorMessage = string.Empty;
             SuccessMessage = string.Empty;
 
-            if (string.IsNullOrWhiteSpace(Name) ||
-                string.IsNullOrWhiteSpace(Email) ||
-                string.IsNullOrWhiteSpace(Department) ||
-                string.IsNullOrWhiteSpace(Password) ||
-                string.IsNullOrWhiteSpace(ConfirmPassword))
+            // Validate fields individually
+            if (string.IsNullOrWhiteSpace(Name))
             {
-                ErrorMessage =
-                    "Please fill all fields.";
+                ErrorMessage = "Name is required.";
+                return;
+            }
 
+            if (string.IsNullOrWhiteSpace(Email))
+            {
+                ErrorMessage = "Email is required.";
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(Department))
+            {
+                ErrorMessage = "Department is required.";
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(Password))
+            {
+                ErrorMessage = "Password is required.";
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(ConfirmPassword))
+            {
+                ErrorMessage = "Confirm Password is required.";
                 return;
             }
 
             if (Password != ConfirmPassword)
             {
-                ErrorMessage =
-                    "Passwords do not match.";
-
+                ErrorMessage = "Passwords do not match.";
                 return;
             }
 
@@ -55,22 +68,49 @@ namespace Employees.UI.Components.Pages
 
             if (result == null || !result.Success)
             {
-                ErrorMessage =
-                    result?.Message ??
-                    "Signup failed.";
+                ErrorMessage = GetMessage(
+                    result?.Message,
+                    "Signup failed.");
 
                 return;
             }
 
-            SuccessMessage =
-                "Account created successfully.";
+            SuccessMessage = "Account created successfully.";
 
             await Task.Delay(1000);
 
             Navigation.NavigateTo("/login");
+        }
 
-            // Signup successful → Login
-            //Navigation.NavigateTo("/");
+        //24
+        private string GetMessage(
+            string? message,
+            string defaultMessage)
+        {
+            if (string.IsNullOrWhiteSpace(message))
+            {
+                return defaultMessage;
+            }
+
+            try
+            {
+                using JsonDocument document =
+                    JsonDocument.Parse(message);
+
+                if (document.RootElement.TryGetProperty(
+                    "message",
+                    out JsonElement messageElement))
+                {
+                    return messageElement.GetString()
+                           ?? defaultMessage;
+                }
+            }
+            catch (JsonException)
+            {
+                // Message is already plain text
+            }
+
+            return message;
         }
     }
 }

@@ -25,15 +25,20 @@ namespace Employee.API.Controllers
         private readonly IValidator<SignupRequest> _signupValidator;
 
         private readonly IValidator<LoginRequest> _loginValidator;
-        
+
+      // serilog/ILogger  24
+        private readonly ILogger<AccountController> _logger;
 
 
-       // Constructor
+
+        // Constructor
         public AccountController(
             EmployeeDbContext context,
             IConfiguration configuration,
             IValidator<SignupRequest> signupValidator,
-            IValidator<LoginRequest> loginValidator)
+            IValidator<LoginRequest> loginValidator,
+            //serilog 24
+            ILogger<AccountController> logger)
         {
             _context = context;
 
@@ -44,6 +49,8 @@ namespace Employee.API.Controllers
             _signupValidator = signupValidator;
 
             _loginValidator = loginValidator;
+            //serilog 24
+            _logger = logger;
         }
 
 
@@ -55,38 +62,17 @@ namespace Employee.API.Controllers
         public async Task<IActionResult> Signup(
             [FromBody] SignupRequest request)
         {
+
+            // Signup attempt serilog24
+            _logger.LogInformation(
+                "Signup attempt for email {Email}",
+                request.Email);
+
+
             // FluentValidation
             var validationResult =
                 await _signupValidator.ValidateAsync(request);
 
-            //if (!validationResult.IsValid)
-            //{
-            //    return BadRequest(
-            //        validationResult.Errors);
-            //}
-
-            //if (!validationResult.IsValid)
-            //{
-            //    return BadRequest(
-            //        validationResult.Errors.Select(x => new
-            //        {
-            //            field = x.PropertyName,
-            //            message = x.ErrorMessage
-            //        })
-            //    );
-            //}
-
-
-            //if (!validationResult.IsValid)
-            //{
-            //    return BadRequest(new
-            //    {
-            //        message = string.Join(" ",
-            //            validationResult.Errors
-            //                .Select(x => x.ErrorMessage)
-            //                .Distinct())
-            //    });
-            //}
 
             if (!validationResult.IsValid)
             {
@@ -107,6 +93,12 @@ namespace Employee.API.Controllers
 
             if (emailExists)
             {
+                //serilog24
+                _logger.LogWarning(
+                  "Signup failed. Email already exists: {Email}",
+                  request.Email);
+
+
                 return BadRequest(
                     "Email already exists.");
             }
@@ -120,6 +112,7 @@ namespace Employee.API.Controllers
                 Email = request.Email,
 
                 Department = request.Department
+
             };
 
 
@@ -135,15 +128,35 @@ namespace Employee.API.Controllers
                 _context.Users.Add(user);
 
                 await _context.SaveChangesAsync();
+
+                // Successful signup login 
+                _logger.LogInformation(
+                    "Account created successfully. UserId {UserId}, Email {Email}",
+                    user.Id,
+                    user.Email);
             }
             catch (Exception ex)
             {
+                //return BadRequest(new
+                //{
+                //    message = ex.Message,
+
+                //    innerException =
+                //        ex.InnerException?.Message
+                //});
+
+                // serilog 24
+                _logger.LogError(
+                  ex,
+                  "Error occurred while creating account for email {Email}",
+                  request.Email);
+
+
+                // Do not expose database exception to UI
                 return BadRequest(new
                 {
-                    message = ex.Message,
-
-                    innerException =
-                        ex.InnerException?.Message
+                    message =
+                        "An error occurred while creating the account."
                 });
             }
 
@@ -163,6 +176,13 @@ namespace Employee.API.Controllers
         public async Task<IActionResult> Login(
             [FromBody] LoginRequest request)
         {
+
+            // Login attempt serilog 24
+            _logger.LogInformation(
+                "Login attempt for email {Email}",
+                request.Email);
+
+
             // FluentValidation
             var validationResult =
                 await _loginValidator.ValidateAsync(request);
@@ -175,6 +195,11 @@ namespace Employee.API.Controllers
 
             if (!validationResult.IsValid)
             {
+                //serilog 24
+                _logger.LogWarning(
+                  "Login validation failed for email {Email}",
+                  request.Email);
+
                 return BadRequest(
                     validationResult.Errors.Select(x => new
                     {
@@ -199,6 +224,11 @@ namespace Employee.API.Controllers
 
             if (user == null)
             {
+                // serilog 24
+                _logger.LogWarning(
+                  "Login failed. User not found for email {Email}",
+                  request.Email);
+
                 return Unauthorized(new
                 {
                     message = "Invalid email or password."
@@ -223,6 +253,11 @@ namespace Employee.API.Controllers
             if (result ==
     PasswordVerificationResult.Failed)
             {
+                //serilog 24
+                _logger.LogWarning(
+                  "Login failed. Invalid password for email {Email}",
+                  request.Email);
+
                 return Unauthorized(new
                 {
                     message = "Invalid email or password."
@@ -233,6 +268,11 @@ namespace Employee.API.Controllers
             // Generate JWT
             var token =
                 GenerateJwtToken(user);
+
+            // Successful login  serilog 24
+            _logger.LogInformation(
+                "Login successful. UserId {UserId}",
+                user.Id);
 
 
             return Ok(new
@@ -347,6 +387,7 @@ namespace Employee.API.Controllers
 
             public string Password { get; set; }
                 = string.Empty;
+
         }
 
 

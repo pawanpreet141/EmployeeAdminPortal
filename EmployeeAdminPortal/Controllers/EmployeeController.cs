@@ -1,179 +1,4 @@
-﻿//using Employee.Data.Data;
-//using Employee.Data.Models;
-//using Microsoft.AspNetCore.Authorization;
-//using Microsoft.AspNetCore.Mvc;
-//using Microsoft.EntityFrameworkCore;
-//using System.Security.Cryptography.X509Certificates;
-
-//namespace Employee.API.Controllers
-//{
-//    [Route("api/[controller]")]
-//    [ApiController]
-
-//    //1
-//    [Authorize]
-//    public class EmployeesController : ControllerBase
-//    {
-//        private readonly EmployeeDbContext _context;
-
-//        public EmployeesController(EmployeeDbContext context)
-//        {
-//            _context = context;
-//        }
-
-//        // GET: api/Employees?userId=1
-//        // Get only employees belonging to this user
-//        [HttpGet]
-//        public async Task<ActionResult<IEnumerable<Employee1>>> GetEmployees(
-//            [FromQuery] int userId)
-//        {
-//            if (userId <= 0)
-//            {
-//                return BadRequest("Invalid UserId.");
-//            }
-
-//            var employees = await _context.Employees
-//                .Where(x => x.UserId == userId)
-//                .ToListAsync();
-
-//            return Ok(employees);
-//        }
-
-
-//        // GET: api/Employees/1?userId=1
-//        [HttpGet("{id}")]
-//        public async Task<ActionResult<Employee1>> GetEmployee(
-//            int id,
-//            [FromQuery] int userId)
-//        {
-//            var employee = await _context.Employees
-//                .FirstOrDefaultAsync(x =>
-//                    x.Id == id &&
-//                    x.UserId == userId);
-
-//            if (employee == null)
-//            {
-//                return NotFound();
-//            }
-
-//            return Ok(employee);
-//        }
-
-
-//        // POST: api/Employees?userId=1
-//        // Add employee for the logged-in user
-//        [HttpPost]
-//        public async Task<ActionResult<Employee1>> CreateEmployee(
-//            [FromQuery] int userId,
-//            Employee1 employee)
-//        {
-//            if (userId <= 0)
-//            {
-//                return BadRequest("Invalid UserId.");
-//            }
-
-//            // Automatically assign employee to this user
-//            employee.UserId = userId;
-
-//            // Database generates the Id
-//            employee.Id = 0;
-
-//            _context.Employees.Add(employee);
-
-//            await _context.SaveChangesAsync();
-
-//            return CreatedAtAction(
-//                nameof(GetEmployee),
-//                new
-//                {
-//                    id = employee.Id,
-//                    userId = userId
-//                },
-//                employee);
-//        }
-
-
-//        // PUT: api/Employees/1?userId=1
-//        [HttpPut("{id}")]
-//        public async Task<IActionResult> UpdateEmployee(
-//            int id,
-//            [FromQuery] int userId,
-//            Employee1 employee)
-//        {
-//            if (userId <= 0)
-//            {
-//                return BadRequest("Invalid UserId.");
-//            }
-
-//            if (id != employee.Id)
-//            {
-//                return BadRequest();
-//            }
-
-//            // Find employee only if it belongs to this user
-//            var existingEmployee =
-//                await _context.Employees
-//                    .FirstOrDefaultAsync(x =>
-//                        x.Id == id &&
-//                        x.UserId == userId);
-
-//            if (existingEmployee == null)
-//            {
-//                return NotFound();
-//            }
-
-//            existingEmployee.Name = employee.Name;
-//            existingEmployee.Email = employee.Email;
-//            existingEmployee.Age = employee.Age;
-//            existingEmployee.Department = employee.Department;
-//            existingEmployee.Salary = employee.Salary;
-
-
-//            await _context.SaveChangesAsync();
-
-//            return NoContent();
-//        }
-
-
-//        // DELETE: api/Employees/1?userId=1
-//        [HttpDelete("{id}")]
-//        public async Task<IActionResult> DeleteEmployee(
-//            int id,
-//            [FromQuery] int userId)
-//        {
-//            if (userId <= 0)
-//            {
-//                return BadRequest("Invalid UserId.");
-//            }
-
-
-//            // Find employee only if it belongs to this user
-//            var employee =
-//                await _context.Employees
-//                    .FirstOrDefaultAsync(x =>
-//                        x.Id == id &&
-//                        x.UserId == userId);
-
-//            if (employee == null)
-//            {
-//                return NotFound();
-//            }
-
-//            _context.Employees.Remove(employee);
-
-//            await _context.SaveChangesAsync();
-
-//            return NoContent();
-//        }
-//    }
-//}
-
-
-
-
-
-
-//23
+﻿//23
 using Employee.Data.Data;
 using Employee.Data.Models;
 using FluentValidation;
@@ -192,18 +17,27 @@ namespace Employee.API.Controllers
 
         private readonly IValidator<Employee1> _validator;
 
+        // Serilog / ILogger /24
+        private readonly ILogger<EmployeesController> _logger;
 
-        
+
+
         // CONSTRUCTOR
-        
+
 
         public EmployeesController(
             EmployeeDbContext context,
-            IValidator<Employee1> validator)
+            IValidator<Employee1> validator,
+
+            //serilog 24
+             ILogger<EmployeesController> logger)
         {
             _context = context;
 
             _validator = validator;
+
+            //serilog24
+            _logger = logger;
         }
 
 
@@ -213,8 +47,18 @@ namespace Employee.API.Controllers
             GetEmployees(
                 [FromQuery] int userId)
         {
+            //serilog 24
+            _logger.LogInformation(
+                "Getting employees for UserId {UserId}",
+                userId);
+
             if (userId <= 0)
             {
+                //serilog24
+                _logger.LogWarning(
+                   "Get employees failed. Invalid UserId {UserId}",
+                   userId);
+
                 return BadRequest(
                     "Invalid UserId.");
             }
@@ -225,6 +69,12 @@ namespace Employee.API.Controllers
                     .Where(x =>
                         x.UserId == userId)
                     .ToListAsync();
+
+            //serilog24
+            _logger.LogInformation(
+            "Retrieved {EmployeeCount} employees for UserId {UserId}",
+            employees.Count,
+            userId);
 
 
             return Ok(employees);
@@ -238,6 +88,12 @@ namespace Employee.API.Controllers
                 int id,
                 [FromQuery] int userId)
         {
+            //serilog 24
+            _logger.LogInformation(
+              "Getting EmployeeId {EmployeeId} for UserId {UserId}",
+              id,
+              userId);
+
             var employee =
                 await _context.Employees
                     .FirstOrDefaultAsync(x =>
@@ -247,6 +103,12 @@ namespace Employee.API.Controllers
 
             if (employee == null)
             {
+                //serilog24
+                _logger.LogWarning(
+                  "Employee not found. EmployeeId {EmployeeId}, UserId {UserId}",
+                  id,
+                  userId);
+
                 return NotFound();
             }
 
@@ -262,8 +124,18 @@ namespace Employee.API.Controllers
                 [FromQuery] int userId,
                 Employee1 employee)
         {
+            //serilog 24
+            _logger.LogInformation(
+                "Creating employee for UserId {UserId}",
+                userId);
+
             if (userId <= 0)
             {
+                //serilog24
+                _logger.LogWarning(
+                 "Create employee failed. Invalid UserId {UserId}",
+                 userId);
+
                 return BadRequest(
                     "Invalid UserId.");
             }
@@ -276,6 +148,11 @@ namespace Employee.API.Controllers
 
             if (!validationResult.IsValid)
             {
+                //serilog24
+                _logger.LogWarning(
+                 "Employee validation failed for UserId {UserId}",
+                 userId);
+
                 return BadRequest(
                     validationResult.Errors);
             }
@@ -292,6 +169,12 @@ namespace Employee.API.Controllers
             _context.Employees.Add(employee);
 
             await _context.SaveChangesAsync();
+
+            //serilog24
+            _logger.LogInformation(
+               "Employee created successfully. EmployeeId {EmployeeId}, UserId {UserId}",
+               employee.Id,
+               userId);
 
 
             return CreatedAtAction(
@@ -316,8 +199,19 @@ namespace Employee.API.Controllers
                 [FromQuery] int userId,
                 Employee1 employee)
         {
+            //serilog24
+            _logger.LogInformation(
+               "Updating EmployeeId {EmployeeId} for UserId {UserId}",
+               id,
+               userId);
+
             if (userId <= 0)
             {
+                //serilog24
+                _logger.LogWarning(
+                "Update employee failed. Invalid UserId {UserId}",
+                userId);
+
                 return BadRequest(
                     "Invalid UserId.");
             }
@@ -325,6 +219,12 @@ namespace Employee.API.Controllers
 
             if (id != employee.Id)
             {
+                //serilog24
+                _logger.LogWarning(
+                   "Update employee failed. Employee ID mismatch. RouteId {RouteId}, EmployeeId {EmployeeId}",
+                   id,
+                   employee.Id);
+
                 return BadRequest(
                     "Employee ID does not match.");
             }
@@ -337,6 +237,12 @@ namespace Employee.API.Controllers
 
             if (!validationResult.IsValid)
             {
+                //serilog 24
+                _logger.LogWarning(
+                 "Employee validation failed during update. EmployeeId {EmployeeId}, UserId {UserId}",
+                 id,
+                 userId);
+
                 return BadRequest(
                     validationResult.Errors);
             }
@@ -352,6 +258,12 @@ namespace Employee.API.Controllers
 
             if (existingEmployee == null)
             {
+                //serilog24
+                _logger.LogWarning(
+                 "Update failed. Employee not found. EmployeeId {EmployeeId}, UserId {UserId}",
+                 id,
+                 userId);
+
                 return NotFound();
             }
 
@@ -375,6 +287,12 @@ namespace Employee.API.Controllers
 
             await _context.SaveChangesAsync();
 
+            //serilog24
+            _logger.LogInformation(
+             "Employee updated successfully. EmployeeId {EmployeeId}, UserId {UserId}",
+             id,
+             userId);
+
 
             return NoContent();
         }
@@ -387,8 +305,19 @@ namespace Employee.API.Controllers
                 int id,
                 [FromQuery] int userId)
         {
+            //serilog24
+            _logger.LogInformation(
+           "Deleting EmployeeId {EmployeeId} for UserId {UserId}",
+           id,
+           userId);
+
             if (userId <= 0)
             {
+                //serilog 24
+                _logger.LogWarning(
+                  "Delete employee failed. Invalid UserId {UserId}",
+                  userId);
+
                 return BadRequest(
                     "Invalid UserId.");
             }
@@ -403,6 +332,12 @@ namespace Employee.API.Controllers
 
             if (employee == null)
             {
+                //serilog24
+                _logger.LogWarning(
+                 "Delete failed. Employee not found. EmployeeId {EmployeeId}, UserId {UserId}",
+                 id,
+                 userId);
+
                 return NotFound();
             }
 
@@ -410,6 +345,12 @@ namespace Employee.API.Controllers
             _context.Employees.Remove(employee);
 
             await _context.SaveChangesAsync();
+
+            //serilog24
+            _logger.LogInformation(
+                "Employee deleted successfully. EmployeeId {EmployeeId}, UserId {UserId}",
+                id,
+                userId);
 
 
             return NoContent();

@@ -12,16 +12,19 @@ namespace Employees.UI.Services
 
         public string Department { get; private set; } = string.Empty;
 
-        
+        public string Token { get; private set; } = string.Empty;
+
+
         public bool IsLoggedIn =>
-            UserId > 0;
+            UserId > 0 && !string.IsNullOrEmpty(Token);
         
 
         public void Login(
             int userId,
             string name,
             string email,
-            string department)
+            string department,
+             string token)
         {
             UserId = userId;
 
@@ -30,6 +33,8 @@ namespace Employees.UI.Services
             Email = email;
 
             Department = department;
+
+            Token = token;
         }
 
 
@@ -42,6 +47,8 @@ namespace Employees.UI.Services
             Email = string.Empty;
 
             Department = string.Empty;
+
+            Token = string.Empty;
 
         }
     }

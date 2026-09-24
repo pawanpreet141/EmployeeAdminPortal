@@ -12,9 +12,22 @@ using System.Text;
 using FluentValidation;
 using Employee.API.Validators;
 
+//24
+using Serilog;
+
+
 
 var builder = WebApplication.CreateBuilder(args);
-  
+
+
+//Serilog 24
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(builder.Configuration)
+    .Enrich.FromLogContext()
+    .CreateLogger();
+
+builder.Host.UseSerilog();
+
 
 //5
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -36,11 +49,13 @@ builder.Services.AddControllersWithViews();
 
 
 // sqlite
+
 //string connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 //builder.Services.AddDbContext<EmployeeDbContext>(options =>
 //    options.UseSqlite(connectionString));
 
 //MySql
+
 builder.Services.AddDbContext<EmployeeDbContext>(options =>
     options.UseMySql(
         builder.Configuration.GetConnectionString("DefaultConnection"),
@@ -93,7 +108,11 @@ builder.Services.AddValidatorsFromAssemblyContaining<EmployeeValidator>();
 
 var app = builder.Build();
 
+//serilog 24
+app.UseSerilogRequestLogging();
+
 //sqlite
+
 //using (var scope = app.Services.CreateScope())
 //{
 //    var dbContext = scope.ServiceProvider.GetRequiredService<EmployeeDbContext>();
