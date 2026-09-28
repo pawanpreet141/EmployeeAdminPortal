@@ -1,5 +1,4 @@
-﻿//using System.Net;
-using Employees.UI.Services;
+﻿using Employees.UI.Services;
 using Intersoft.Crosslight.Mobile;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
@@ -12,11 +11,6 @@ namespace Employees.UI.Services
 
         private readonly UserSession _userSession;
 
-        //public HttpClientWrapper(HttpClient httpClient)
-        //{
-        //    _httpClient = httpClient;
-        //}
-
 
         public HttpClientWrapper(
          HttpClient httpClient,
@@ -25,45 +19,6 @@ namespace Employees.UI.Services
             _httpClient = httpClient;
             _userSession = userSession;
         }
-
-
-        //public async Task<T?> GetAsync<T>(string url)
-        //{
-        //    var response = await _httpClient.GetAsync(url);
-
-        //    var responseText =
-        //        await response.Content.ReadAsStringAsync();
-
-        //    if (!response.IsSuccessStatusCode)
-        //    {
-        //        throw new Exception(
-        //            $"API Error ({(int)response.StatusCode}): {responseText}");
-        //    }
-
-        //    if (string.IsNullOrWhiteSpace(responseText))
-        //    {
-        //        return default;
-        //    }
-
-
-
-        //    try
-        //    {
-        //        return System.Text.Json.JsonSerializer.Deserialize<T>(
-        //            responseText,
-        //            new System.Text.Json.JsonSerializerOptions
-        //            {
-        //                PropertyNameCaseInsensitive = true
-        //            });
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw new Exception(
-        //            $"Invalid JSON response from API: {responseText}",
-        //            ex);
-        //    }
-        //}
-
 
 
         public async Task<T?> GetAsync<T>(string url)
@@ -105,106 +60,81 @@ namespace Employees.UI.Services
                         PropertyNameCaseInsensitive = true
                     });
         }
-    
+
+
+        public async Task<HttpResponseMessage> PostAsync<T>(
+            string url,
+            T data)
+        {
+            using var request =
+                new HttpRequestMessage(
+                    HttpMethod.Post,
+                    url);
+
+            request.Content =
+                JsonContent.Create(data);
+
+            if (!string.IsNullOrWhiteSpace(_userSession.Token))
+            {
+                request.Headers.Authorization =
+                    new AuthenticationHeaderValue(
+                        "Bearer",
+                        _userSession.Token);
+            }
+
+            return await _httpClient.SendAsync(request);
+        }
 
 
 
+        public async Task<HttpResponseMessage> PutAsync<T>(
+            string url,
+            T data)
+        {
+            using var request =
+                new HttpRequestMessage(
+                    HttpMethod.Put,
+                    url);
+
+            request.Content =
+                JsonContent.Create(data);
+
+            if (!string.IsNullOrWhiteSpace(_userSession.Token))
+            {
+                request.Headers.Authorization =
+                    new AuthenticationHeaderValue(
+                        "Bearer",
+                        _userSession.Token);
+            }
+
+            return await _httpClient.SendAsync(request);
+        }
 
 
 
+        public async Task<HttpResponseMessage> DeleteAsync(
+            string url)
+        {
+            using var request =
+                new HttpRequestMessage(
+                    HttpMethod.Delete,
+                    url);
 
-//Post
-public async Task<HttpResponseMessage> PostAsync<T>(string url, T data)
-{
-    return await _httpClient.PostAsJsonAsync(url, data);
-}
+            if (!string.IsNullOrWhiteSpace(_userSession.Token))
+            {
+                request.Headers.Authorization =
+                    new AuthenticationHeaderValue(
+                        "Bearer",
+                        _userSession.Token);
+            }
 
-
-
-//public async Task<HttpResponseMessage> PostAsync<T>(
-//    string url,
-//    T data)
-//{
-//    using var request =
-//        new HttpRequestMessage(
-//            HttpMethod.Post,
-//            url);
-
-//    request.Content =
-//        JsonContent.Create(data);
-
-//    if (!string.IsNullOrWhiteSpace(_userSession.Token))
-//    {
-//        request.Headers.Authorization =
-//            new AuthenticationHeaderValue(
-//                "Bearer",
-//                _userSession.Token);
-//    }
-
-//    return await _httpClient.SendAsync(request);
-//}
-
-//Put
-public async Task<HttpResponseMessage> PutAsync<T>(string url, T data)
-{
-    return await _httpClient.PutAsJsonAsync(url, data);
-}
+            return await _httpClient.SendAsync(request);
+        }
 
 
+        // signup, login 
 
-//public async Task<HttpResponseMessage> PutAsync<T>(
-//    string url,
-//    T data)
-//{
-//    using var request =
-//        new HttpRequestMessage(
-//            HttpMethod.Put,
-//            url);
-
-//    request.Content =
-//        JsonContent.Create(data);
-
-//    if (!string.IsNullOrWhiteSpace(_userSession.Token))
-//    {
-//        request.Headers.Authorization =
-//            new AuthenticationHeaderValue(
-//                "Bearer",
-//                _userSession.Token);
-//    }
-
-//    return await _httpClient.SendAsync(request);
-//}
-
-//Delete
-public async Task<HttpResponseMessage> DeleteAsync(string url)
-{
-    return await _httpClient.DeleteAsync(url);
-}
-
-
-//public async Task<HttpResponseMessage> DeleteAsync(
-//    string url)
-//{
-//    using var request =
-//        new HttpRequestMessage(
-//            HttpMethod.Delete,
-//            url);
-
-//    if (!string.IsNullOrWhiteSpace(_userSession.Token))
-//    {
-//        request.Headers.Authorization =
-//            new AuthenticationHeaderValue(
-//                "Bearer",
-//                _userSession.Token);
-//    }
-
-//    return await _httpClient.SendAsync(request);
-//}
-
-
-// signup, login 
-
-public async Task<ApiResponse?> Signup(
+        public async Task<ApiResponse?> Signup(
             SignupRequest request)
         {
             var response =

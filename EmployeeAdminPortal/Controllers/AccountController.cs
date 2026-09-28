@@ -26,7 +26,7 @@ namespace Employee.API.Controllers
 
         private readonly IValidator<LoginRequest> _loginValidator;
 
-      // serilog/ILogger  24
+
         private readonly ILogger<AccountController> _logger;
 
 
@@ -37,7 +37,7 @@ namespace Employee.API.Controllers
             IConfiguration configuration,
             IValidator<SignupRequest> signupValidator,
             IValidator<LoginRequest> loginValidator,
-            //serilog 24
+ 
             ILogger<AccountController> logger)
         {
             _context = context;
@@ -49,7 +49,7 @@ namespace Employee.API.Controllers
             _signupValidator = signupValidator;
 
             _loginValidator = loginValidator;
-            //serilog 24
+
             _logger = logger;
         }
 
@@ -93,7 +93,7 @@ namespace Employee.API.Controllers
 
             if (emailExists)
             {
-                //serilog24
+         
                 _logger.LogWarning(
                   "Signup failed. Email already exists: {Email}",
                   request.Email);
@@ -137,15 +137,7 @@ namespace Employee.API.Controllers
             }
             catch (Exception ex)
             {
-                //return BadRequest(new
-                //{
-                //    message = ex.Message,
-
-                //    innerException =
-                //        ex.InnerException?.Message
-                //});
-
-                // serilog 24
+ 
                 _logger.LogError(
                   ex,
                   "Error occurred while creating account for email {Email}",
@@ -177,7 +169,6 @@ namespace Employee.API.Controllers
             [FromBody] LoginRequest request)
         {
 
-            // Login attempt serilog 24
             _logger.LogInformation(
                 "Login attempt for email {Email}",
                 request.Email);
@@ -187,15 +178,9 @@ namespace Employee.API.Controllers
             var validationResult =
                 await _loginValidator.ValidateAsync(request);
 
-            //if (!validationResult.IsValid)
-            //{
-            //    return BadRequest(
-            //        validationResult.Errors);
-            //}
 
             if (!validationResult.IsValid)
             {
-                //serilog 24
                 _logger.LogWarning(
                   "Login validation failed for email {Email}",
                   request.Email);
@@ -216,15 +201,9 @@ namespace Employee.API.Controllers
                     .FirstOrDefaultAsync(x =>
                         x.Email == request.Email);
 
-            //if (user == null)
-            //{
-            //    return Unauthorized(
-            //        "Invalid email or password.");
-            //}
 
             if (user == null)
             {
-                // serilog 24
                 _logger.LogWarning(
                   "Login failed. User not found for email {Email}",
                   request.Email);
@@ -243,17 +222,10 @@ namespace Employee.API.Controllers
                     user.PasswordHash,
                     request.Password);
 
-            //if (result ==
-            //    PasswordVerificationResult.Failed)
-            //{
-            //    return Unauthorized(
-            //        "Invalid email or password.");
-            //}
 
             if (result ==
     PasswordVerificationResult.Failed)
             {
-                //serilog 24
                 _logger.LogWarning(
                   "Login failed. Invalid password for email {Email}",
                   request.Email);

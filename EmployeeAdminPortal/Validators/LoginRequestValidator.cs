@@ -1,5 +1,4 @@
-﻿//23
-using Employee.API.Controllers;
+﻿using Employee.API.Controllers;
 using FluentValidation;
 
 namespace Employee.API.Validators

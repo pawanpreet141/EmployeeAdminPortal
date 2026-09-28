@@ -1,70 +1,63 @@
-﻿////9
+﻿using Microsoft.AspNetCore.Components.Authorization;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
-//using Microsoft.AspNetCore.Components.Authorization;
-//using Blazored.LocalStorage;
-//using System.Security.Claims;
-//using System.Text.Json;
-//using System.Net.Http.Headers;
-//using Intersoft.Crosslight.Mobile;
+namespace Employees.UI.Services
+{
+    public class CustomAuthProvider : AuthenticationStateProvider
+    {
+        private readonly UserSession _userSession;
 
-//namespace Employees.UI.Services
-//{
+        public CustomAuthProvider(UserSession userSession)
+        {
+            _userSession = userSession;
+        }
 
-//    public class CustomAuthStateProvider : AuthenticationStateProvider
-//    {
-//        private readonly ILocalStorageService _localStorage;
-//        private readonly HttpClient _httpClient;
-//        private readonly AuthenticationState _anonymous;
+        public override Task<AuthenticationState>
+            GetAuthenticationStateAsync()
+        {
+            if (!_userSession.IsLoggedIn)
+            {
+                return Task.FromResult(
+                    new AuthenticationState(
+                        new ClaimsPrincipal(
+                            new ClaimsIdentity())));
+            }
 
-//        public CustomAuthStateProvider(ILocalStorageService localStorage, HttpClient httpClient)
-//        {
-//            _localStorage = localStorage;
-//            _httpClient = httpClient;
-//            _anonymous = new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
-//        }
+            var claims = GetClaimsFromToken(
+                _userSession.Token);
 
-//        public override async Task<AuthenticationState> GetAuthenticationStateAsync()
-//        {
-//            var token = await _localStorage.GetItemAsync<string>("authToken");
+            var identity = new ClaimsIdentity(
+                claims,
+                "jwt");
 
-//            if (string.IsNullOrWhiteSpace(token))
-//                return _anonymous;
+            var user = new ClaimsPrincipal(identity);
 
-//            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", token);
+            return Task.FromResult(
+                new AuthenticationState(user));
+        }
 
-//            return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity(ParseClaimsFromJwt(token), "jwt")));
-//        }
+        public void NotifyUserLogin()
+        {
+            NotifyAuthenticationStateChanged(
+                GetAuthenticationStateAsync());
+        }
 
-//        public void NotifyUserLogin(string token)
-//        {
-//            var authenticatedUser = new ClaimsPrincipal(new ClaimsIdentity(ParseClaimsFromJwt(token), "jwt"));
-//            var authState = Task.FromResult(new AuthenticationState(authenticatedUser));
-//            NotifyAuthenticationStateChanged(authState);
-//        }
+        public void NotifyUserLogout()
+        {
+            NotifyAuthenticationStateChanged(
+                GetAuthenticationStateAsync());
+        }
 
-//        public void NotifyUserLogout()
-//        {
-//            var authState = Task.FromResult(_anonymous);
-//            NotifyAuthenticationStateChanged(authState);
-//        }
+        private IEnumerable<Claim> GetClaimsFromToken(
+            string token)
+        {
+            var handler = new JwtSecurityTokenHandler();
 
-//        private IEnumerable<Claim> ParseClaimsFromJwt(string jwt)
-//        {
-//            var payload = jwt.Split('.')[1];
-//            var jsonBytes = ParseBase64WithoutPadding(payload);
-//            var keyValuePairs = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonBytes);
-//            return keyValuePairs.Select(kvp => new Claim(kvp.Key, kvp.Value.ToString()));
-//        }
+            var jwtToken =
+                handler.ReadJwtToken(token);
 
-//        private byte[] ParseBase64WithoutPadding(string base64)
-//        {
-//            switch (base64.Length % 4)
-//            {
-//                case 2: base64 += "=="; break;
-//                case 3: base64 += "="; break;
-//            }
-//            return Convert.FromBase64String(base64);
-//        }
-
-//    }
-//}
+            return jwtToken.Claims;
+        }
+    }
+}

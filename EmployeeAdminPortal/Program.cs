@@ -5,14 +5,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
-//21
 using System.Text;
 //using Repository.Design
-//23
 using FluentValidation;
 using Employee.API.Validators;
 
-//24
 using Serilog;
 
 
@@ -20,7 +17,6 @@ using Serilog;
 var builder = WebApplication.CreateBuilder(args);
 
 
-//Serilog 24
 Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(builder.Configuration)
     .Enrich.FromLogContext()
@@ -32,7 +28,6 @@ builder.Host.UseSerilog((context, services, configuration) => configuration
         .Enrich.FromLogContext());
 
 
-//5
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -51,30 +46,25 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddControllersWithViews();
 
 
-// sqlite
+//// sqlite
 
-string connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-builder.Services.AddDbContext<EmployeeDbContext>(options =>
-    options.UseSqlite(connectionString));
-
-////MySql
-
+//string connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 //builder.Services.AddDbContext<EmployeeDbContext>(options =>
-//    options.UseMySql(
-//        builder.Configuration.GetConnectionString("DefaultConnection"),
-//        ServerVersion.AutoDetect(
-//            builder.Configuration.GetConnectionString("DefaultConnection")
-//        )
-//    ));
+//    options.UseSqlite(connectionString));
 
-// password hasher
+//MySql
+
+builder.Services.AddDbContext<EmployeeDbContext>(options =>
+    options.UseMySql(
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        ServerVersion.AutoDetect(
+            builder.Configuration.GetConnectionString("DefaultConnection")
+        )
+    ));
+
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
-//21
-//builder.Services.AddEndpointsApiExplorer();
-//builder.Services.AddSwaggerGen();
-//21
-//21
+
 
 builder.Services.AddEndpointsApiExplorer();
 
@@ -96,31 +86,28 @@ builder.Services.AddSwaggerGen(options =>
             [new OpenApiSecuritySchemeReference("Bearer", document)] = []
         });
 });
-//21
 
 
-//7
 builder.Services.AddAuthorization();
 builder.Services.AddControllers();
 
 
-//23
 builder.Services.AddValidatorsFromAssemblyContaining<EmployeeValidator>();
-//23
+
 
 
 var app = builder.Build();
 
-//serilog 24
+
 app.UseSerilogRequestLogging();
 
-//sqlite
+////sqlite
 
-using (var scope = app.Services.CreateScope())
-{
-    var dbContext = scope.ServiceProvider.GetRequiredService<EmployeeDbContext>();
-    dbContext.Database.EnsureCreated();
-}
+//using (var scope = app.Services.CreateScope())
+//{
+//    var dbContext = scope.ServiceProvider.GetRequiredService<EmployeeDbContext>();
+//    dbContext.Database.EnsureCreated();
+//}
 
 
 if (app.Environment.IsDevelopment())
@@ -132,7 +119,6 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-//6
 app.UseAuthentication();
 
 app.UseAuthorization();
