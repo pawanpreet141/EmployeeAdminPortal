@@ -20,7 +20,7 @@ builder.Services.AddHttpClient<HttpClientWrapper>(client =>
 
 //User Session
 //builder.Services.AddSingleton<UserSession>();
-builder.Services.AddScoped<UserSession>();
+builder.Services.AddSingleton<UserSession>();
 
 //10
 //var builder = WebAssemblyHostBuilder.CreateDefault(args);

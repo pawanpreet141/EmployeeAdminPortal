@@ -26,7 +26,10 @@ Log.Logger = new LoggerConfiguration()
     .Enrich.FromLogContext()
     .CreateLogger();
 
-builder.Host.UseSerilog();
+builder.Host.UseSerilog((context, services, configuration) => configuration
+        .ReadFrom.Configuration(context.Configuration)
+        .ReadFrom.Services(services)
+        .Enrich.FromLogContext());
 
 
 //5
@@ -50,19 +53,19 @@ builder.Services.AddControllersWithViews();
 
 // sqlite
 
-//string connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-//builder.Services.AddDbContext<EmployeeDbContext>(options =>
-//    options.UseSqlite(connectionString));
-
-//MySql
-
+string connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<EmployeeDbContext>(options =>
-    options.UseMySql(
-        builder.Configuration.GetConnectionString("DefaultConnection"),
-        ServerVersion.AutoDetect(
-            builder.Configuration.GetConnectionString("DefaultConnection")
-        )
-    ));
+    options.UseSqlite(connectionString));
+
+////MySql
+
+//builder.Services.AddDbContext<EmployeeDbContext>(options =>
+//    options.UseMySql(
+//        builder.Configuration.GetConnectionString("DefaultConnection"),
+//        ServerVersion.AutoDetect(
+//            builder.Configuration.GetConnectionString("DefaultConnection")
+//        )
+//    ));
 
 // password hasher
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
@@ -113,11 +116,11 @@ app.UseSerilogRequestLogging();
 
 //sqlite
 
-//using (var scope = app.Services.CreateScope())
-//{
-//    var dbContext = scope.ServiceProvider.GetRequiredService<EmployeeDbContext>();
-//    dbContext.Database.EnsureCreated();
-//}
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<EmployeeDbContext>();
+    dbContext.Database.EnsureCreated();
+}
 
 
 if (app.Environment.IsDevelopment())

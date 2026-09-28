@@ -5,7 +5,8 @@ namespace Employees.UI.Components.Pages
 {
     public partial class Employee
     {
-        private List<Employee1>? employees;
+        public List<Employee1> employees { get; set; }
+       // List<Employee1>? employees;
 
         private Employee1 employee = new();
 
@@ -17,13 +18,7 @@ namespace Employees.UI.Components.Pages
         // Load employees when page opens
         protected override async Task OnInitializedAsync()
         {
-            // Check if user is logged in
-            if (!UserSession.IsLoggedIn)
-            {
-                Navigation.NavigateTo("/login");
-
-                return;
-            }
+            
 
             await LoadEmployees();
         }
