@@ -28,6 +28,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Employee.Data\Employee.Data.csproj" />
+    <ProjectReference Include="..\Repository.Design\Employee.BusinessLogic.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,4 +1,5 @@
 ﻿using Employee.Data.Data;
+using Employee.BusinessLogic;
 using Employee.Data.Models;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
@@ -12,7 +13,8 @@ namespace Employee.API.Controllers
     [Authorize]
     public class EmployeesController : ControllerBase
     {
-        private readonly EmployeeDbContext _context;
+
+        private readonly IEmployeeService _employeeService;
 
         private readonly IValidator<Employee1> _validator;
 
@@ -21,13 +23,14 @@ namespace Employee.API.Controllers
 
 
         // CONSTRUCTOR
-        public EmployeesController(
-            EmployeeDbContext context,
-            IValidator<Employee1> validator,
 
-             ILogger<EmployeesController> logger)
+        public EmployeesController(
+    IEmployeeService employeeService,
+    IValidator<Employee1> validator,
+
+    ILogger<EmployeesController> logger)
         {
-            _context = context;
+            _employeeService = employeeService;
 
             _validator = validator;
 
@@ -35,7 +38,7 @@ namespace Employee.API.Controllers
         }
 
 
-       //get
+        //get
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Employee1>>>
             GetEmployees(
@@ -56,11 +59,9 @@ namespace Employee.API.Controllers
             }
 
 
-            var employees =
-                await _context.Employees
-                    .Where(x =>
-                        x.UserId == userId)
-                    .ToListAsync();
+
+            var employees = await _employeeService
+    .GetAllAsync(userId);
 
             _logger.LogInformation(
             "Retrieved {EmployeeCount} employees for UserId {UserId}",
@@ -84,11 +85,9 @@ namespace Employee.API.Controllers
               id,
               userId);
 
-            var employee =
-                await _context.Employees
-                    .FirstOrDefaultAsync(x =>
-                        x.Id == id &&
-                        x.UserId == userId);
+
+            var employee = await _employeeService
+    .GetByIdAsync(id, userId);
 
 
             if (employee == null)
@@ -106,12 +105,12 @@ namespace Employee.API.Controllers
         }
 
 
-       //Create
+        //Create
+
         [HttpPost]
-        public async Task<ActionResult<Employee1>>
-            CreateEmployee(
-                [FromQuery] int userId,
-                Employee1 employee)
+        public async Task<ActionResult<Employee1>> CreateEmployee(
+            [FromQuery] int userId,
+            Employee1 employee)
         {
             _logger.LogInformation(
                 "Creating employee for UserId {UserId}",
@@ -119,214 +118,100 @@ namespace Employee.API.Controllers
 
             if (userId <= 0)
             {
-                _logger.LogWarning(
-                 "Create employee failed. Invalid UserId {UserId}",
-                 userId);
-
-                return BadRequest(
-                    "Invalid UserId.");
+                return BadRequest("Invalid UserId.");
             }
 
-
-            // FluentValidation
             var validationResult =
                 await _validator.ValidateAsync(employee);
 
-
             if (!validationResult.IsValid)
             {
-                _logger.LogWarning(
-                 "Employee validation failed for UserId {UserId}",
-                 userId);
-
-                return BadRequest(
-                    validationResult.Errors);
+                return BadRequest(validationResult.Errors);
             }
 
-
-            // Assign UserId
-            employee.UserId = userId;
-
-
-            // Database generates Id
-            employee.Id = 0;
-
-
-            _context.Employees.Add(employee);
-
-            await _context.SaveChangesAsync();
-
-            _logger.LogInformation(
-               "Employee created successfully. EmployeeId {EmployeeId}, UserId {UserId}",
-               employee.Id,
-               userId);
-
+            var result = await _employeeService
+                .AddAsync(employee, userId);
 
             return CreatedAtAction(
                 nameof(GetEmployee),
-
                 new
                 {
-                    id = employee.Id,
-
+                    id = result.Id,
                     userId = userId
                 },
-
-                employee);
+                result);
         }
 
 
+
         //Update
+
         [HttpPut("{id}")]
-        public async Task<IActionResult>
-            UpdateEmployee(
-                int id,
-                [FromQuery] int userId,
-                Employee1 employee)
+        public async Task<IActionResult> UpdateEmployee(
+    int id,
+    [FromQuery] int userId,
+    Employee1 employee)
         {
             _logger.LogInformation(
-               "Updating EmployeeId {EmployeeId} for UserId {UserId}",
-               id,
-               userId);
+                "Updating EmployeeId {EmployeeId} for UserId {UserId}",
+                id,
+                userId);
 
             if (userId <= 0)
             {
-                _logger.LogWarning(
-                "Update employee failed. Invalid UserId {UserId}",
-                userId);
-
-                return BadRequest(
-                    "Invalid UserId.");
+                return BadRequest("Invalid UserId.");
             }
-
 
             if (id != employee.Id)
             {
-                _logger.LogWarning(
-                   "Update employee failed. Employee ID mismatch. RouteId {RouteId}, EmployeeId {EmployeeId}",
-                   id,
-                   employee.Id);
-
                 return BadRequest(
                     "Employee ID does not match.");
             }
 
-
-            // FluentValidation
+            // Fluet Validation
             var validationResult =
                 await _validator.ValidateAsync(employee);
 
-
             if (!validationResult.IsValid)
             {
-                _logger.LogWarning(
-                 "Employee validation failed during update. EmployeeId {EmployeeId}, UserId {UserId}",
-                 id,
-                 userId);
-
-                return BadRequest(
-                    validationResult.Errors);
+                return BadRequest(validationResult.Errors);
             }
 
+            var result = await _employeeService
+                .UpdateAsync(employee, userId);
 
-            // Find existing employee
-            var existingEmployee =
-                await _context.Employees
-                    .FirstOrDefaultAsync(x =>
-                        x.Id == id &&
-                        x.UserId == userId);
-
-
-            if (existingEmployee == null)
+            if (result == null)
             {
-                _logger.LogWarning(
-                 "Update failed. Employee not found. EmployeeId {EmployeeId}, UserId {UserId}",
-                 id,
-                 userId);
-
                 return NotFound();
             }
-
-
-            // Update fields
-            existingEmployee.Name =
-                employee.Name;
-
-            existingEmployee.Email =
-                employee.Email;
-
-            existingEmployee.Age =
-                employee.Age;
-
-            existingEmployee.Department =
-                employee.Department;
-
-            existingEmployee.Salary =
-                employee.Salary;
-
-
-            await _context.SaveChangesAsync();
-
-            _logger.LogInformation(
-             "Employee updated successfully. EmployeeId {EmployeeId}, UserId {UserId}",
-             id,
-             userId);
-
 
             return NoContent();
         }
 
+        //Delete
 
-         //Delete
         [HttpDelete("{id}")]
-        public async Task<IActionResult>
-            DeleteEmployee(
-                int id,
-                [FromQuery] int userId)
+        public async Task<IActionResult> DeleteEmployee(
+    int id,
+    [FromQuery] int userId)
         {
             _logger.LogInformation(
-           "Deleting EmployeeId {EmployeeId} for UserId {UserId}",
-           id,
-           userId);
-
-            if (userId <= 0)
-            {
-                _logger.LogWarning(
-                  "Delete employee failed. Invalid UserId {UserId}",
-                  userId);
-
-                return BadRequest(
-                    "Invalid UserId.");
-            }
-
-
-            var employee =
-                await _context.Employees
-                    .FirstOrDefaultAsync(x =>
-                        x.Id == id &&
-                        x.UserId == userId);
-
-
-            if (employee == null)
-            {
-                _logger.LogWarning(
-                 "Delete failed. Employee not found. EmployeeId {EmployeeId}, UserId {UserId}",
-                 id,
-                 userId);
-
-                return NotFound();
-            }
-
-
-            _context.Employees.Remove(employee);
-
-            await _context.SaveChangesAsync();
-
-            _logger.LogInformation(
-                "Employee deleted successfully. EmployeeId {EmployeeId}, UserId {UserId}",
+                "Deleting EmployeeId {EmployeeId} for UserId {UserId}",
                 id,
                 userId);
 
+            if (userId <= 0)
+            {
+                return BadRequest("Invalid UserId.");
+            }
+
+            var result = await _employeeService
+                .DeleteAsync(id, userId);
+
+            if (!result)
+            {
+                return NotFound();
+            }
 
             return NoContent();
         }

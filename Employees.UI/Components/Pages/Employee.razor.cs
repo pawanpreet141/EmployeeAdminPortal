@@ -6,7 +6,6 @@ namespace Employees.UI.Components.Pages
     public partial class Employee
     {
         public List<Employee1> employees { get; set; }
-       // List<Employee1>? employees;
 
         private Employee1 employee = new();
 
@@ -14,17 +13,19 @@ namespace Employees.UI.Components.Pages
 
         private int editingId = 0;
 
-
-        // Load employees when page opens
         protected override async Task OnInitializedAsync()
         {
-            
+            if (!UserSession.IsLoggedIn)
+            {
+                Navigation.NavigateTo("/login");
+                return;
+            }
+
 
             await LoadEmployees();
         }
 
 
-        // Load only employees belonging to logged-in user
         private async Task LoadEmployees()
         {
             employees =
@@ -34,7 +35,6 @@ namespace Employees.UI.Components.Pages
         }
 
 
-        // Show Add Employee form
         private void ShowAddForm()
         {
             employee = new Employee1();
@@ -45,7 +45,6 @@ namespace Employees.UI.Components.Pages
         }
 
 
-        // Edit employee
         private void EditEmployee(Employee1 selectedEmployee)
         {
             employee = new Employee1
@@ -57,7 +56,6 @@ namespace Employees.UI.Components.Pages
                 Department = selectedEmployee.Department,
                 Age = selectedEmployee.Age,
 
-                // Keep current user's Id
                 UserId = UserSession.UserId
             };
 
@@ -67,19 +65,16 @@ namespace Employees.UI.Components.Pages
         }
 
 
-        // Add or Update employee
         private async Task SaveEmployee()
         {
             if (editingId == 0)
             {
-                // Add employee
                 await HttpClient.PostAsync(
                     $"api/Employees?userId={UserSession.UserId}",
                     employee);
             }
             else
             {
-                // Update employee
                 await HttpClient.PutAsync(
                     $"api/Employees/{editingId}?userId={UserSession.UserId}",
                     employee);
@@ -95,7 +90,6 @@ namespace Employees.UI.Components.Pages
         }
 
 
-        // Delete employee
         private async Task DeleteEmployee(int id)
         {
             var response =
@@ -109,7 +103,6 @@ namespace Employees.UI.Components.Pages
         }
 
 
-        // Cancel form
         private void Cancel()
         {
             showForm = false;

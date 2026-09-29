@@ -1,7 +1,6 @@
 ﻿using Employee.Data.Data;
 using Employee.Data.Models;
-using System.Security.Permissions;
-
+using Microsoft.EntityFrameworkCore;
 
 namespace Employee.BusinessLogic;
 
@@ -14,64 +13,73 @@ public class EmployeeRepository : IEmployeeRepository
         _context = context;
     }
 
-    public List<Employee1> GetAll()
+    public async Task<List<Employee1>> GetAllAsync(int userId)
     {
-        return _context.Employees.ToList();
+        return await _context.Employees
+            .Where(e => e.UserId == userId)
+            .ToListAsync();
     }
 
-    public async Task<Employee1?> Employee1GetByIdAsync(int id)
+    public async Task<Employee1?> GetByIdAsync(int id, int userId)
     {
-        return _context.Employees
-            .FirstOrDefault(e => e.Id == id);
+        return await _context.Employees
+            .FirstOrDefaultAsync(e =>
+                e.Id == id &&
+                e.UserId == userId);
     }
 
-    public void Add(Employee1 employee)
+    public async Task<Employee1> AddAsync(Employee1 employee)
     {
         _context.Employees.Add(employee);
-        _context.SaveChanges();
+
+        await _context.SaveChangesAsync();
+
+        return employee;
     }
 
-    public void Update(Employee1 employee)
+    public async Task<Employee1?> UpdateAsync(
+        Employee1 employee,
+        int userId)
     {
-        _context.Employees.Update(employee);
-        _context.SaveChanges();
-    }
+        var existingEmployee =
+            await _context.Employees
+                .FirstOrDefaultAsync(e =>
+                    e.Id == employee.Id &&
+                    e.UserId == userId);
 
-    public void Delete(int id)
-    {
-        var employee = _context.Employees
-            .FirstOrDefault(e => e.Id == id);
-
-        if (employee != null)
+        if (existingEmployee == null)
         {
-            _context.Employees.Remove(employee);
-            _context.SaveChanges();
+            return null;
         }
+
+        existingEmployee.Name = employee.Name;
+        existingEmployee.Email = employee.Email;
+        existingEmployee.Age = employee.Age;
+        existingEmployee.Department = employee.Department;
+        existingEmployee.Salary = employee.Salary;
+
+        await _context.SaveChangesAsync();
+
+        return existingEmployee;
     }
 
-    public Task<List<Employee1>> GetAllAsync()
+    public async Task<bool> DeleteAsync(int id, int userId)
     {
-        throw new NotImplementedException();
-    }
+        var employee =
+            await _context.Employees
+                .FirstOrDefaultAsync(e =>
+                    e.Id == id &&
+                    e.UserId == userId);
 
-    public Task<Employee1?> GetByIdAsync(int id)
-    {
-        throw new NotImplementedException();
-    }
+        if (employee == null)
+        {
+            return false;
+        }
 
-    public Task<Employee1> AddAsync(Employee1 employee)
-    {
-        throw new NotImplementedException();
-    }
+        _context.Employees.Remove(employee);
 
-    public Task<Employee1?> UpdateAsync(Employee1 employee)
-    {
-        throw new NotImplementedException();
-    }
+        await _context.SaveChangesAsync();
 
-    public Task<bool> DeleteAsync(int id)
-    {
-        throw new NotImplementedException();
+        return true;
     }
-
 }

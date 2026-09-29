@@ -6,10 +6,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using System.Text;
-//using Repository.Design
 using FluentValidation;
 using Employee.API.Validators;
-
+using Employee.BusinessLogic;
 using Serilog;
 
 
@@ -62,9 +61,11 @@ builder.Services.AddDbContext<EmployeeDbContext>(options =>
         )
     ));
 
+builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+
+builder.Services.AddScoped<IEmployeeService, EmployeeService>();
+
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
-
-
 
 builder.Services.AddEndpointsApiExplorer();
 

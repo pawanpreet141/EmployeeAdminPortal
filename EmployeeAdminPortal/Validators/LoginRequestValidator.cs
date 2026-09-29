@@ -9,7 +9,6 @@ namespace Employee.API.Validators
         public LoginRequestValidator()
         {
              
-            //Email
             RuleFor(x => x.Email)
                 .NotEmpty()
                 .WithMessage("Email is required.")
@@ -19,7 +18,6 @@ namespace Employee.API.Validators
                     "Please enter a valid email address.");
 
 
-            //Password
             RuleFor(x => x.Password)
                 .NotEmpty()
                 .WithMessage("Password is required.");

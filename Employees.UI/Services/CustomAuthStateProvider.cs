@@ -4,11 +4,11 @@ using System.Security.Claims;
 
 namespace Employees.UI.Services
 {
-    public class CustomAuthProvider : AuthenticationStateProvider
+    public class CustomAuthStateProvider : AuthenticationStateProvider
     {
         private readonly UserSession _userSession;
 
-        public CustomAuthProvider(UserSession userSession)
+        public CustomAuthStateProvider(UserSession userSession)
         {
             _userSession = userSession;
         }

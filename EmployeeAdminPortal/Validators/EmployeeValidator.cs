@@ -8,7 +8,7 @@ namespace Employee.API.Validators
     {
         public EmployeeValidator()
         {
-            //Name
+            
             RuleFor(x => x.Name)
                 .NotEmpty()
                 .WithMessage("Employee name is required.")
@@ -19,7 +19,7 @@ namespace Employee.API.Validators
 
 
           
-            // Email
+            
             RuleFor(x => x.Email)
                 .NotEmpty()
                 .WithMessage("Email is required.")
@@ -28,14 +28,14 @@ namespace Employee.API.Validators
                 .WithMessage(
                     "Please enter a valid email address.");
 
-            // AGE
+            
 
             RuleFor(x => x.Age)
                 .InclusiveBetween(18, 60)
                 .WithMessage(
                     "Age must be between 18 and 60.");
 
-            // DEPARTMENT
+            
 
             RuleFor(x => x.Department)
                 .NotEmpty()
@@ -46,7 +46,7 @@ namespace Employee.API.Validators
                     "Department must be HR, Developer, Designing, or Sales.");
 
 
-           //Salary
+           
             RuleFor(x => x.Salary)
                 .GreaterThan(0)
                 .WithMessage(
@@ -55,7 +55,6 @@ namespace Employee.API.Validators
 
 
       
-        // Department Validation
         private bool IsValidDepartment(string department)
         {
             string[] validDepartments =

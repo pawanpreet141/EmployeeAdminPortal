@@ -1,5 +1,7 @@
 using System.Text.Json;
 using Employees.UI.Services;
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 
 namespace Employees.UI.Components.Pages
 {
@@ -9,11 +11,15 @@ namespace Employees.UI.Components.Pages
         private string Password = string.Empty;
         private string ErrorMessage = string.Empty;
 
+
+        [Inject]
+        private AuthenticationStateProvider AuthStateProvider { get; set; } = default!;
+
+
         private async Task LoginUser()
         {
             ErrorMessage = string.Empty;
 
-            // Validate fields individually
             if (string.IsNullOrWhiteSpace(Email))
             {
                 ErrorMessage = "Email is required.";
@@ -57,7 +63,7 @@ namespace Employees.UI.Components.Pages
 
             Navigation.NavigateTo("/employees");
         }
-// 24
+
         private string GetMessage(
             string? message,
             string defaultMessage)

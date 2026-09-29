@@ -1,5 +1,4 @@
-﻿//23
-using Employee.Data.Data;
+﻿using Employee.Data.Data;
 using Employee.Data.Models;
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
@@ -63,7 +62,6 @@ namespace Employee.API.Controllers
             [FromBody] SignupRequest request)
         {
 
-            // Signup attempt serilog24
             _logger.LogInformation(
                 "Signup attempt for email {Email}",
                 request.Email);

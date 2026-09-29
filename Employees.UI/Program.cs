@@ -1,16 +1,14 @@
 using Employees.UI.Components;
 using Employees.UI.Services;
 using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 
-//builder.Services.AddScoped<HttpClientWrapper>();
 builder.Services.AddHttpClient<HttpClientWrapper>(client =>
 {
     //client.BaseAddress = new Uri("https://localhost:44347/");
@@ -18,8 +16,16 @@ builder.Services.AddHttpClient<HttpClientWrapper>(client =>
     // client.BaseAddress = new Uri("https://localhost:7219/");
 });
 
-//User Session
+
 builder.Services.AddSingleton<UserSession>();
+
+
+builder.Services.AddScoped<
+    AuthenticationStateProvider,
+    CustomAuthStateProvider>();
+
+builder.Services.AddAuthorizationCore();
+
 
 
 var app = builder.Build();

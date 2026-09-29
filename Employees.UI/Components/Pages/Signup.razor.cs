@@ -1,4 +1,3 @@
-//24
 using System.Text.Json;
 using Employees.UI.Services;
 
@@ -82,7 +81,6 @@ namespace Employees.UI.Components.Pages
             Navigation.NavigateTo("/login");
         }
 
-        //24
         private string GetMessage(
             string? message,
             string defaultMessage)

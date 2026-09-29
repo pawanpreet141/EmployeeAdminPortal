@@ -8,20 +8,21 @@
 
 <h3>Employee Management</h3>
 
+@* 29  code show jwt ,,, browser,,,, only for testing*@
+@if (UserSession.IsLoggedIn)
+{
+    <div class="alert alert-info">
+        <strong>JWT Token:</strong>
+        <br />
+        <div style="word-break: break-all;">
+            @UserSession.Token
+        </div>
+    </div>
+}
+@* 29 *@
+
 <hr />
 
-@* 14 *@
-
-@* <AuthorizeView>
-    <Authorized>
-        <p>Welcome back, @context.User.Identity.Name!</p>
-    </Authorized>
-    <NotAuthorized>
-        <p>Please log in to view premium features.</p>
-    </NotAuthorized>
-</AuthorizeView> *@
-@* 
-14 *@
 <div class="mb-3">
     <button class="btn btn-primary" @onclick="ShowAddForm">
         Add Employee
