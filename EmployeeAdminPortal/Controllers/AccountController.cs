@@ -102,16 +102,49 @@ namespace Employee.API.Controllers
             }
 
 
-            // Create user
-            var user = new User
+            //// Create user
+            //var user = new User
+            //{
+            //    Name = request.Name,
+
+            //    Email = request.Email,
+
+            //    Department = request.Department
+
+            //};
+
+            //5
+            // Validate Department
+            if (request.Department != "HR" && 
+                request.Department != "Technical") 
             {
-                Name = request.Name,
+                return BadRequest(new { 
+                    message = "Department must be HR or Technical." 
+                });
+            }
 
+            // Validate Team
+            if (!IsValidTeam(
+                request.Department,
+                request.Team)) 
+            {
+                return BadRequest(new 
+                { 
+                    message = "Invalid team for selected department." 
+                });
+            }
+
+            // Normal signup can NEVER create Admin.
+            var user = new User 
+            { 
+                Name = request.Name, 
                 Email = request.Email,
-
-                Department = request.Department
-
+                Role = "Employee", 
+                Department = request.Department,
+                Team = request.Team 
             };
+            //5
+
 
 
             // Hash password
@@ -253,7 +286,11 @@ namespace Employee.API.Controllers
 
                 email = user.Email,
 
+                role = user.Role,
+
                 department = user.Department,
+
+                team = user.Team,
 
                 token = token,
 
@@ -262,9 +299,99 @@ namespace Employee.API.Controllers
         }
 
 
-        
+
         // GENERATE JWT
-        
+
+
+        //private string GenerateJwtToken(User user)
+        //{
+        //    var key =
+        //        _configuration["Jwt:Key"];
+
+        //    var issuer =
+        //        _configuration["Jwt:Issuer"];
+
+        //    var audience =
+        //        _configuration["Jwt:Audience"];
+
+
+        //    var securityKey =
+        //        new SymmetricSecurityKey(
+        //            Encoding.UTF8.GetBytes(key!));
+
+
+        //    var credentials =
+        //        new SigningCredentials(
+        //            securityKey,
+        //            SecurityAlgorithms.HmacSha256);
+
+
+        //    var claims = new[]
+        //    {
+        //        new Claim(
+        //            ClaimTypes.NameIdentifier,
+        //            user.Id.ToString()),
+
+        //        new Claim(
+        //            ClaimTypes.Name,
+        //            user.Name),
+
+        //        new Claim(
+        //            ClaimTypes.Email,
+        //            user.Email),
+
+        //        //new Claim(
+        //        //    "Department",
+        //        //    user.Department)
+        //        //5
+
+        //        new Claim( 
+        //            ClaimTypes.Role,
+        //            user.Role),
+
+        //        new Claim(
+        //            "Department",
+        //            user.Department),
+
+        //        new Claim( 
+        //            "Team",
+        //            user.Team)
+
+        //        //5
+        //    };
+
+
+        //    var tokenDescriptor =
+        //        new SecurityTokenDescriptor
+        //        {
+        //            Subject =
+        //                new ClaimsIdentity(claims),
+
+        //            Expires =
+        //                DateTime.UtcNow.AddHours(2),
+
+        //            Issuer = issuer,
+
+        //            Audience = audience,
+
+        //            SigningCredentials =
+        //                credentials
+        //        };
+
+
+        //    var tokenHandler =
+        //        new JwtSecurityTokenHandler();
+
+
+        //    var token =
+        //        tokenHandler.CreateToken(
+        //            tokenDescriptor);
+
+
+        //    return tokenHandler.WriteToken(token);
+        //}
+
+
 
         private string GenerateJwtToken(User user)
         {
@@ -277,37 +404,52 @@ namespace Employee.API.Controllers
             var audience =
                 _configuration["Jwt:Audience"];
 
-
             var securityKey =
                 new SymmetricSecurityKey(
                     Encoding.UTF8.GetBytes(key!));
-
 
             var credentials =
                 new SigningCredentials(
                     securityKey,
                     SecurityAlgorithms.HmacSha256);
 
+            // Basic claims
+            var claims = new List<Claim>
+    {
+        new Claim(
+            ClaimTypes.NameIdentifier,
+            user.Id.ToString()),
 
-            var claims = new[]
+        new Claim(
+            ClaimTypes.Name,
+            user.Name),
+
+        new Claim(
+            ClaimTypes.Email,
+            user.Email),
+
+        new Claim(
+            ClaimTypes.Role,
+            user.Role)
+    };
+
+            // Department is optional for Admin
+            if (!string.IsNullOrWhiteSpace(user.Department))
             {
-                new Claim(
-                    ClaimTypes.NameIdentifier,
-                    user.Id.ToString()),
+                claims.Add(
+                    new Claim(
+                        "Department",
+                        user.Department));
+            }
 
-                new Claim(
-                    ClaimTypes.Name,
-                    user.Name),
-
-                new Claim(
-                    ClaimTypes.Email,
-                    user.Email),
-
-                new Claim(
-                    "Department",
-                    user.Department)
-            };
-
+            // Team is optional for Admin
+            if (!string.IsNullOrWhiteSpace(user.Team))
+            {
+                claims.Add(
+                    new Claim(
+                        "Team",
+                        user.Team));
+            }
 
             var tokenDescriptor =
                 new SecurityTokenDescriptor
@@ -326,23 +468,40 @@ namespace Employee.API.Controllers
                         credentials
                 };
 
-
             var tokenHandler =
                 new JwtSecurityTokenHandler();
-
 
             var token =
                 tokenHandler.CreateToken(
                     tokenDescriptor);
 
-
             return tokenHandler.WriteToken(token);
         }
 
 
-        
+        // TEAM VALIDATION 5
+        private bool IsValidTeam(
+           string department,
+           string team)
+        { 
+            if (department == "HR") 
+            { 
+                return team == "Designers" || 
+                    team == "Development" || 
+                    team == "SEO" || 
+                    team == "Sales"; 
+            } 
+            if (department == "Technical")
+            { 
+                return team == "System Engineer" ||
+                    team == "DevOps"; 
+            } 
+            return false; 
+        }
+
+
         // SIGNUP REQUEST
-        
+
 
         public class SignupRequest
         {
@@ -354,6 +513,8 @@ namespace Employee.API.Controllers
 
             public string Department { get; set; }
                 = string.Empty;
+
+            public string Team { get; set; } = string.Empty;
 
             public string Password { get; set; }
                 = string.Empty;

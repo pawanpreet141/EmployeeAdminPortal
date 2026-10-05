@@ -10,6 +10,13 @@
 
         public string PasswordHash { get; set; } = string.Empty;
 
-        public string Department { get; set; } = string.Empty;
+        public string Role { get; set; } = "Employee";
+
+        public string? Department { get; set; } = string.Empty;
+
+        public string? Team { get; set; } = string.Empty;
+
+        public ICollection<Employee1> Employees { get; set; }
+           = new List<Employee1>();
     }
 }

@@ -58,10 +58,38 @@ namespace Employees.UI.Components.Pages
                 result.Id,
                 result.Name,
                 result.Email,
+                result.Role,
                 result.Department,
+                result.Team,
                 result.Token);
 
-            Navigation.NavigateTo("/employees");
+            //Navigation.NavigateTo("/employees");
+
+            // Notify Blazor authentication 5
+            if (AuthStateProvider 
+                is CustomAuthStateProvider authProvider) 
+            { 
+                authProvider.NotifyUserLogin();
+            } 
+            
+            // Redirect based on role/department
+            if (result.Role == "Admin") 
+            { 
+                Navigation.NavigateTo( "/admin-dashboard");
+            } 
+            else if (result.Department == "HR") 
+            { 
+                Navigation.NavigateTo( "/hr-dashboard");
+            }
+            else if (result.Department == "Technical") 
+            { 
+                Navigation.NavigateTo( "/technical-dashboard"); 
+            } 
+            else
+            { 
+                ErrorMessage = "Invalid department assigned to this account."; 
+            }
+            //5
         }
 
         private string GetMessage(

@@ -30,6 +30,13 @@ namespace Employee.API.Validators
                 .WithMessage(
                     "Department must be HR, Developer, Designing, or Sales.");
 
+            // Team 5
+             RuleFor(x => x.Team) 
+                .NotEmpty()
+                .WithMessage("Team is required.") 
+                .Must((request, team) => IsValidTeam(request.Department, team)) 
+                .WithMessage( "Invalid team for the selected department.");
+
 
             RuleFor(x => x.Password)
     .NotEmpty()
@@ -47,19 +54,67 @@ namespace Employee.API.Validators
         }
 
 
-        private bool IsValidDepartment(string department)
-        {
-            string[] validDepartments =
-            {
-                "HR",
-                "Developer",
-                "Designing",
-                "Sales"
-            };
+        //private bool IsValidDepartment(string department)
+        //{
+        //    string[] validDepartments =
+        //    {
+        //        "HR",
+        //        "Developer",
+        //        "Designing",
+        //        "Sales"
+        //    };
 
+        //    return validDepartments.Contains(
+        //        department,
+        //        StringComparer.OrdinalIgnoreCase);
+        //}
+
+        //5
+
+        private bool IsValidDepartment(string department) 
+        { 
+            string[] validDepartments = 
+                { 
+                "HR",
+                "Technical" 
+            }; 
             return validDepartments.Contains(
-                department,
-                StringComparer.OrdinalIgnoreCase);
+                department, StringComparer.OrdinalIgnoreCase);
+        }
+        private bool IsValidTeam(string department, 
+            string team)
+        {
+            if (string.Equals(
+                department, 
+                "HR", 
+                StringComparison.OrdinalIgnoreCase))
+            { 
+                string[] hrTeams =
+                    { 
+                    "Designers", 
+                    "Development", 
+                    "SEO", 
+                    "Sales" 
+                }; 
+                return hrTeams.Contains(
+                    team, 
+                    StringComparer.OrdinalIgnoreCase);
+            } 
+            if (string.Equals(
+                department, 
+                "Technical",
+                StringComparison.OrdinalIgnoreCase)) 
+            { 
+                string[] technicalTeams = 
+                    { 
+                    "System Engineer",
+                    "DevOps"
+                }; 
+                return technicalTeams.Contains(
+                    team, 
+                    StringComparer.OrdinalIgnoreCase);
+            } 
+            return false;
         }
     }
 }

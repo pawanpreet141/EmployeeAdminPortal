@@ -1,14 +1,83 @@
-﻿using Microsoft.AspNetCore.Components.Authorization;
+﻿//using Microsoft.AspNetCore.Components.Authorization;
+//using System.IdentityModel.Tokens.Jwt;
+//using System.Security.Claims;
+
+//namespace Employees.UI.Services
+//{
+//    public class CustomAuthStateProvider : AuthenticationStateProvider
+//    {
+//        private readonly UserSession _userSession;
+
+//        public CustomAuthStateProvider(UserSession userSession)
+//        {
+//            _userSession = userSession;
+//        }
+
+//        public override Task<AuthenticationState>
+//            GetAuthenticationStateAsync()
+//        {
+//            if (!_userSession.IsLoggedIn)
+//            {
+//                return Task.FromResult(
+//                    new AuthenticationState(
+//                        new ClaimsPrincipal(
+//                            new ClaimsIdentity())));
+//            }
+
+//            var claims = GetClaimsFromToken(
+//                _userSession.Token);
+
+//            var identity = new ClaimsIdentity(
+//                claims,
+//                "jwt");
+
+//            var user = new ClaimsPrincipal(identity);
+
+//            return Task.FromResult(
+//                new AuthenticationState(user));
+//        }
+
+//        public void NotifyUserLogin()
+//        {
+//            NotifyAuthenticationStateChanged(
+//                GetAuthenticationStateAsync());
+//        }
+
+//        public void NotifyUserLogout()
+//        {
+//            NotifyAuthenticationStateChanged(
+//                GetAuthenticationStateAsync());
+//        }
+
+//        private IEnumerable<Claim> GetClaimsFromToken(
+//            string token)
+//        {
+//            var handler = new JwtSecurityTokenHandler();
+
+//            var jwtToken =
+//                handler.ReadJwtToken(token);
+
+//            return jwtToken.Claims;
+//        }
+//    }
+//}
+
+
+//5
+
+using Microsoft.AspNetCore.Components.Authorization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
 namespace Employees.UI.Services
 {
-    public class CustomAuthStateProvider : AuthenticationStateProvider
+    public class CustomAuthStateProvider
+    : AuthenticationStateProvider
     {
         private readonly UserSession _userSession;
 
-        public CustomAuthStateProvider(UserSession userSession)
+    public CustomAuthStateProvider(
+        UserSession userSession)
         {
             _userSession = userSession;
         }
@@ -24,14 +93,19 @@ namespace Employees.UI.Services
                             new ClaimsIdentity())));
             }
 
-            var claims = GetClaimsFromToken(
-                _userSession.Token);
+            var claims =
+                GetClaimsFromToken(
+                    _userSession.Token);
 
-            var identity = new ClaimsIdentity(
-                claims,
-                "jwt");
+            var identity =
+                new ClaimsIdentity(
+                    claims,
+                    "jwt",
+                    ClaimTypes.Name,
+                    ClaimTypes.Role);
 
-            var user = new ClaimsPrincipal(identity);
+            var user =
+                new ClaimsPrincipal(identity);
 
             return Task.FromResult(
                 new AuthenticationState(user));
@@ -49,10 +123,11 @@ namespace Employees.UI.Services
                 GetAuthenticationStateAsync());
         }
 
-        private IEnumerable<Claim> GetClaimsFromToken(
-            string token)
+        private IEnumerable<Claim>
+            GetClaimsFromToken(string token)
         {
-            var handler = new JwtSecurityTokenHandler();
+            var handler =
+                new JwtSecurityTokenHandler();
 
             var jwtToken =
                 handler.ReadJwtToken(token);
@@ -60,4 +135,5 @@ namespace Employees.UI.Services
             return jwtToken.Claims;
         }
     }
+
 }

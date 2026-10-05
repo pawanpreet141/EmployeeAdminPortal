@@ -56,6 +56,7 @@ public class EmployeeRepository : IEmployeeRepository
         existingEmployee.Email = employee.Email;
         existingEmployee.Age = employee.Age;
         existingEmployee.Department = employee.Department;
+        existingEmployee.Team = employee.Team;
         existingEmployee.Salary = employee.Salary;
 
         await _context.SaveChangesAsync();
@@ -79,6 +80,7 @@ public class EmployeeRepository : IEmployeeRepository
         _context.Employees.Remove(employee);
 
         await _context.SaveChangesAsync();
+
 
         return true;
     }

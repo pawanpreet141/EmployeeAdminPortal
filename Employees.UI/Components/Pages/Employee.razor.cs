@@ -54,6 +54,7 @@ namespace Employees.UI.Components.Pages
                 Email = selectedEmployee.Email,
                 Salary = selectedEmployee.Salary,
                 Department = selectedEmployee.Department,
+                Team = selectedEmployee.Team,
                 Age = selectedEmployee.Age,
 
                 UserId = UserSession.UserId
@@ -116,4 +117,90 @@ namespace Employees.UI.Components.Pages
 }
 
 
+
+
+//using Employees.UI.Models;
+//using Employees.UI.Services;
+//using Microsoft.AspNetCore.Components;
+
+//namespace Employees.UI.Components.Pages
+//{
+//    public partial class Employee
+//    {
+//        [Inject]
+//       private HttpClientWrapper HttpClient { get; set; } = default!;
+
+//        [Inject]
+//        private UserSession UserSession { get; set; } = default!;
+
+//      [Inject]
+//      private NavigationManager Navigation { get; set; } = default!;
+
+//        [Parameter]
+//        [SupplyParameterFromQuery(Name = "department")]
+//        public string? DepartmentFromQuery { get; set; }
+
+//        [Parameter]
+//        [SupplyParameterFromQuery(Name = "team")]
+//        public string? TeamFromQuery { get; set; }
+
+//        private List<Employee1>? employees;
+
+//        private Employee1 employee = new();
+
+//        private bool showForm = false;
+
+//        private int editingId = 0;
+
+//        protected override async Task OnInitializedAsync()
+//        {
+//            employee = new Employee1();
+
+//            await LoadEmployees();
+//        }
+
+//        private async Task LoadEmployees()
+//        {
+//            try
+//            {
+//                employees = await HttpClient.GetAsync<List<Employee1>>(
+//                    "api/Employee");
+
+//                if (employees == null)
+//                {
+//                    employees = new List<Employee1>();
+//                    return;
+//                }
+
+//                // Filter by department selected by Admin
+//                if (!string.IsNullOrWhiteSpace(DepartmentFromQuery))
+//                {
+//                    employees = employees
+//                        .Where(x =>
+//                            x.Department.Equals(
+//                                DepartmentFromQuery,
+//                                StringComparison.OrdinalIgnoreCase))
+//                        .ToList();
+//                }
+
+//                // Filter by team selected by Admin
+//                if (!string.IsNullOrWhiteSpace(TeamFromQuery))
+//                {
+//                    employees = employees
+//                        .Where(x =>
+//                            x.Team.Equals(
+//                                TeamFromQuery,
+//                                StringComparison.OrdinalIgnoreCase))
+//                        .ToList();
+//                }
+//            }
+//            catch (Exception ex)
+//            {
+//                Console.WriteLine(ex.Message);
+
+//                employees = new List<Employee1>();
+//            }
+//        }
+//    }
+//}
 
