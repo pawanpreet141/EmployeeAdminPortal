@@ -303,7 +303,7 @@ public class HttpClientWrapper
             new System.Text.Json.JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true
-            });
+          });
     }
 
     // POST

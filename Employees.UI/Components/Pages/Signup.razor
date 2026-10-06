@@ -1,4 +1,4 @@
-﻿@page "/signup"
+﻿@* @page "/signup"
 @rendermode InteractiveServer
 @using Employees.UI.Services
 @inject HttpClientWrapper Api
@@ -37,10 +37,10 @@
                                type="email"
                                @bind="Email"
                                placeholder="Enter email" />
-                    </div>
+                    </div> *@
 
                     @* Department *@
-                    <div class="mb-3">
+                   @*  <div class="mb-3">
                         <label class="form-label">
                             Department
                         </label>
@@ -113,7 +113,202 @@
 
         </div>
     </div>
+</div> 
+ *@
+
+
+@*  6 *@
+@page "/signup"
+@rendermode InteractiveServer
+
+@using Employees.UI.Services
+@inject HttpClientWrapper Api
+@inject NavigationManager Navigation
+@layout Layout
+
+<PageTitle>Signup</PageTitle>
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+
+            <div class="card shadow">
+
+                <!-- Header -->
+                <div class="card-header text-center">
+                    <h3>Create Account</h3>
+                </div>
+
+
+                <div class="card-body">
+
+                    <!-- Name -->
+                    <div class="mb-3">
+                        <label class="form-label">
+                            Name
+                        </label>
+
+                        <input class="form-control"
+                               @bind="Name"
+                               placeholder="Enter name" />
+                    </div>
+
+
+                    <!-- Email -->
+                    <div class="mb-3">
+                        <label class="form-label">
+                            Email
+                        </label>
+
+                        <input class="form-control"
+                               type="email"
+                               @bind="Email"
+                               placeholder="Enter email" />
+                    </div>
+
+
+                    <!-- Department -->
+                    <div class="mb-3">
+                        <label class="form-label">
+                            Department
+                        </label>
+
+                        <select class="form-select"
+                                @bind="Department">
+
+                            <option value="">
+                                Select Department
+                            </option>
+
+                            <option value="HR">
+                                HR
+                            </option>
+
+                            <option value="Technical">
+                                Technical
+                            </option>
+
+                        </select>
+                    </div>
+
+
+                    <!-- Team -->
+                    <div class="mb-3">
+                        <label class="form-label">
+                            Team
+                        </label>
+
+                        <select class="form-select"
+                                @bind="Team">
+
+                            <option value="">
+                                Select Team
+                            </option>
+
+                            @if (Department == "HR")
+                            {
+                                <option value="Designers">
+                                    Designers
+                                </option>
+
+                                <option value="Development">
+                                    Development
+                                </option>
+
+                                <option value="SEO">
+                                    SEO
+                                </option>
+
+                                <option value="Sales">
+                                    Sales
+                                </option>
+                            }
+                            else if (Department == "Technical")
+                            {
+                                <option value="System Engineer">
+                                    System Engineer
+                                </option>
+
+                                <option value="DevOps">
+                                    DevOps
+                                </option>
+                            }
+
+                        </select>
+                    </div>
+
+
+                    <!-- Password -->
+                    <div class="mb-3">
+                        <label class="form-label">
+                            Password
+                        </label>
+
+                        <input class="form-control"
+                               type="password"
+                               @bind="Password"
+                               placeholder="Enter password" />
+                    </div>
+
+
+                    <!-- Confirm Password -->
+                    <div class="mb-3">
+                        <label class="form-label">
+                            Confirm Password
+                        </label>
+
+                        <input class="form-control"
+                               type="password"
+                               @bind="ConfirmPassword"
+                               placeholder="Confirm password" />
+                    </div>
+
+
+                    <!-- Error Message -->
+                    @if (!string.IsNullOrEmpty(ErrorMessage))
+                    {
+                        <div class="alert alert-danger">
+                            @ErrorMessage
+                        </div>
+                    }
+
+
+                    <!-- Success Message -->
+                    @if (!string.IsNullOrEmpty(SuccessMessage))
+                    {
+                        <div class="alert alert-success">
+                            @SuccessMessage
+                        </div>
+                    }
+
+
+                    <!-- Sign Up Button -->
+                    <button class="btn btn-success w-100"
+                            @onclick="SignupUser">
+
+                        Sign Up
+
+                    </button>
+
+
+                    <!-- Login Link -->
+                    <div class="text-center mt-3">
+
+                        <a href="/login">
+                            Already have an account?
+                            Login
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
 </div>
+
 
 
 

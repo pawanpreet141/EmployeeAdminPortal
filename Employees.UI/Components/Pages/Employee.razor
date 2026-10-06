@@ -9,7 +9,7 @@
 <h3>Employee Management</h3> *@
 
 @* 29  code show jwt ,,, browser,,,, only for testing*@
-@if (UserSession.IsLoggedIn)
+@* @if (UserSession.IsLoggedIn)
 {
     <div class="alert alert-info">
         <strong>JWT Token:</strong>
@@ -18,7 +18,7 @@
             @UserSession.Token
         </div>
     </div>
-}
+} *@
 @* 29 *@
 @* 
 <hr />
@@ -174,8 +174,6 @@ else
 
  *@
 
-
-
 @using Employees.UI.Models
 @using Employees.UI.Services
 
@@ -212,8 +210,7 @@ else
 </div>
 
 
-@* 
-   ADD / EDIT FORM *@
+@* ADD / EDIT FORM *@
 
 @if (showForm)
 {
@@ -513,6 +510,3 @@ else
 
     </table>
 }
-
-
-
